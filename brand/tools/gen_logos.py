@@ -85,7 +85,7 @@ class MonoLetters:
                 r = CAP_H / 2 - h + 2
                 cx = x + r + h
                 cy = -CAP_H / 2
-                a0, a1 = math.radians(-78), math.radians(50)  # opening to the right
+                a0, a1 = math.radians(-96), math.radians(50)  # opening to the right
                 sx, sy = cx + r * math.cos(a0), cy + r * math.sin(a0)
                 ex, ey = cx + r * math.cos(a1), cy + r * math.sin(a1)
                 strokes.append(f"M{sx:.2f} {sy:.2f}A{r:.2f} {r:.2f} 0 1 0 {ex:.2f} {ey:.2f}")
@@ -120,7 +120,7 @@ def rot(px, py, ang):
     return px * math.cos(a) - py * math.sin(a), px * math.sin(a) + py * math.cos(a)
 
 
-def cap_svg(cx, cy, W, ang, tassel="right", simple=False, gap=None, flat=0.16, tassel_len=0.40, attach=0.43):
+def cap_svg(cx, cy, W, ang, tassel="right", simple=False, gap=None, flat=0.16, tassel_len=0.40, attach=0.43, bw=0.28):
     """Mortarboard centred at board centre (cx, cy), board width W, rotated ang deg.
 
     Fill classes: .ink for the cap, .acc for the tassel, gap stroke uses .gap (bg colour).
@@ -138,7 +138,7 @@ def cap_svg(cx, cy, W, ang, tassel="right", simple=False, gap=None, flat=0.16, t
     if not simple:
         # skull band, sits under the board and over the letter
         band = [(-0.29, 0.05), (-0.29, 0.29), None, (0.29, 0.29), (0.29, 0.05)]
-        a = T(-0.28, 0.04); b = T(-0.275, 0.22); c = T(0, 0.31); d = T(0.275, 0.22); e = T(0.28, 0.04)
+        a = T(-bw, 0.04); b = T(-bw + 0.005, 0.22); c = T(0, 0.31); d = T(bw - 0.005, 0.22); e = T(bw, 0.04)
         pts += [a, b, c, d, e]
         out.append(f'<path class="ink" '
                    f'd="M{a[0]:.2f} {a[1]:.2f}L{b[0]:.2f} {b[1]:.2f}Q{c[0]:.2f} {c[1]:.2f} {d[0]:.2f} {d[1]:.2f}L{e[0]:.2f} {e[1]:.2f}Z"/>')
@@ -205,7 +205,7 @@ def build_take(cfg):
     ccx = (cx0 + cx1) / 2 + cw * cfg["cap_dx"]
     ccy = cy0 + cfg["seat"] * CAP_H - 0.27 * capW
     cap, cpts = cap_svg(ccx, ccy, capW, cfg["cap_angle"], tassel=cfg["tassel"],
-                        tassel_len=cfg.get("tassel_len", 0.40), attach=cfg.get("attach", 0.43))
+                        tassel_len=cfg.get("tassel_len", 0.40), attach=cfg.get("attach", 0.43), bw=cfg.get("bw", 0.28))
     letter_pts = []
     for p in parts:
         b = p["b"]; letter_pts += [(b[0], b[1]), (b[2], b[3])]
@@ -258,20 +258,20 @@ TAKES = [
     {
         "id": "pizarra", "name": "Pizarra", "kind": "font", "font": "bricolage700.ttf",
         "tracking": -4, "kern": {1: 14, 2: 4},
-        "cap_scale": 1.44, "cap_dx": 0.10, "seat": 0.16, "cap_angle": -11, "tassel": "right",
-        "attach": 0.30, "tassel_len": 0.30, "i_variant": True,
+        "cap_scale": 1.44, "cap_dx": 0.03, "seat": 0.16, "cap_angle": -11, "tassel": "right",
+        "attach": 0.36, "bw": 0.33, "tassel_len": 0.30, "i_variant": True,
     },
     {
         "id": "tinta", "name": "Tinta", "kind": "font", "font": "fraunces600.ttf",
         "tracking": -2, "kern": {1: 26, 2: 4},
-        "cap_scale": 1.30, "cap_dx": 0.16, "seat": 0.24, "cap_angle": -8, "tassel": "left",
-        "attach": 0.46, "tassel_len": 0.16,
+        "cap_scale": 1.30, "cap_dx": 0.09, "seat": 0.24, "cap_angle": -8, "tassel": "left",
+        "attach": 0.46, "bw": 0.32, "tassel_len": 0.16,
     },
     {
         "id": "trazo", "name": "Trazo", "kind": "mono",
-        "kern": {1: 12, 2: 2},
-        "cap_scale": 1.36, "cap_dx": 0.0, "seat": 0.20, "cap_angle": -17, "tassel": "right",
-        "attach": 0.36, "tassel_len": 0.36,
+        "kern": {1: 26, 2: 2},
+        "cap_scale": 1.36, "cap_dx": -0.07, "seat": 0.20, "cap_angle": -17, "tassel": "right",
+        "attach": 0.40, "bw": 0.33, "tassel_len": 0.36,
     },
 ]
 
