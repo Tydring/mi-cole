@@ -308,10 +308,9 @@ def build_take(cfg):
 TAKES = [
     {
         "id": "pizarra", "name": "Pizarra", "kind": "font", "font": "bricolage700.ttf",
-        "tracking": -4, "kern": {1: 22, 2: 10},
-        "cap_scale": 1.44, "cap_dx": -0.12, "seat": 0.16, "cap_angle": -17, "tassel": "right",
-        "attach": 0.36, "bw": 0.33, "tassel_len": 0.30, "i_variant": True,
-        "fused": {"bx": 46, "by": -178, "Wk": 1.42, "ang": -17, "flat": 0.17, "swing": 24, "hang": 0.42},
+        "tracking": -4, "kern": {1: 20, 2: 6},
+        "cap_scale": 1.32, "cap_dx": -0.15, "seat": 0.13, "cap_angle": -10, "tassel": "right",
+        "attach": 0.40, "bw": 0.29, "tassel_len": 0.34, "i_variant": True,
     },
     {
         "id": "tinta", "name": "Tinta", "kind": "font", "font": "fraunces600.ttf",
