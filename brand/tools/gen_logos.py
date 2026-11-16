@@ -309,7 +309,7 @@ def build_take(cfg):
         mono, sw = True, L.SW
     else:
         L = FontLetters(cfg["font"], cfg.get("tracking", 0))
-        parts = L.layout("miCole", kern=cfg.get("kern"))
+        parts = L.layout("miCole", kern=cfg.get("kern"), swap={1: "dotlessi"} if cfg.get("dotless") else None)
         mono, sw = False, None
     C = parts[2]
     cx0, cy0, cx1, cy1 = C["b"]
