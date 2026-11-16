@@ -140,7 +140,7 @@ def cap_svg(cx, cy, W, ang, tassel="right", simple=False, gap=None, flat=0.16, t
         band = [(-0.29, 0.05), (-0.29, 0.29), None, (0.29, 0.29), (0.29, 0.05)]
         a = T(-0.28, 0.04); b = T(-0.275, 0.22); c = T(0, 0.31); d = T(0.275, 0.22); e = T(0.28, 0.04)
         pts += [a, b, c, d, e]
-        out.append(f'<path class="ink gap" stroke-width="{g:.2f}" paint-order="stroke" stroke-linejoin="round" '
+        out.append(f'<path class="ink" '
                    f'd="M{a[0]:.2f} {a[1]:.2f}L{b[0]:.2f} {b[1]:.2f}Q{c[0]:.2f} {c[1]:.2f} {d[0]:.2f} {d[1]:.2f}L{e[0]:.2f} {e[1]:.2f}Z"/>')
     d = "M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in bpts) + "Z"
     out.append(f'<path class="ink gap" stroke-width="{g:.2f}" paint-order="stroke" stroke-linejoin="round" d="{d}"/>')
@@ -222,7 +222,7 @@ def build_take(cfg):
 
     # small mark: diamond only, larger and flatter-proof, for 16 px
     scap, spts = cap_svg((cx0 + cx1) / 2 + cw * cfg["cap_dx"] * 0.5, cy0 - cw * 0.06, cw * 1.12,
-                         cfg["cap_angle"] * 0.8, simple=True, gap=cw * 0.07, flat=0.22)
+                         cfg["cap_angle"] * 0.8, simple=True, gap=0, flat=0.22)
     sb = bbox([(cx0, cy0), (cx1, cy1)] + spts, 0)
     side2 = max(sb[2] - sb[0], sb[3] - sb[1]) * 1.06
     mx2, my2 = (sb[0] + sb[2]) / 2, (sb[1] + sb[3]) / 2
@@ -258,14 +258,14 @@ TAKES = [
     {
         "id": "pizarra", "name": "Pizarra", "kind": "font", "font": "bricolage700.ttf",
         "tracking": -4, "kern": {1: 14, 2: 4},
-        "cap_scale": 1.44, "cap_dx": -0.08, "seat": 0.13, "cap_angle": 11, "tassel": "right",
-        "attach": 0.42, "tassel_len": 0.16, "i_variant": True,
+        "cap_scale": 1.44, "cap_dx": 0.10, "seat": 0.16, "cap_angle": -11, "tassel": "right",
+        "attach": 0.30, "tassel_len": 0.30, "i_variant": True,
     },
     {
         "id": "tinta", "name": "Tinta", "kind": "font", "font": "fraunces600.ttf",
         "tracking": -2, "kern": {1: 26, 2: 4},
-        "cap_scale": 1.24, "cap_dx": 0.04, "seat": 0.14, "cap_angle": 7, "tassel": "left",
-        "attach": 0.46, "tassel_len": 0.30,
+        "cap_scale": 1.30, "cap_dx": 0.16, "seat": 0.24, "cap_angle": -8, "tassel": "left",
+        "attach": 0.46, "tassel_len": 0.16,
     },
     {
         "id": "trazo", "name": "Trazo", "kind": "mono",

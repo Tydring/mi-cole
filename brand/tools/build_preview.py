@@ -19,8 +19,8 @@ def contrast(a, b):
 TAKES = [
     {
         "id": "pizarra", "num": "1", "name": "Pizarra",
-        "pitch": "Chunky grotesque, cap tipped forward over the eyes, short tassel hanging just inside the C. The most confident and the most legible small. Reads like a product, not a school crest.",
-        "cap": "Large (1.44 x the C width), tilted 11 degrees clockwise, tassel into the opening.",
+        "pitch": "Chunky grotesque, cap tilted left and grown into the top of the C, tassel dropping into the opening. The most confident and the most legible small. Reads like a product, not a school crest.",
+        "cap": "Large (1.44 x the C width), tilted 11 degrees to the left, seamless with the C, tassel into the opening.",
         "light": {"bg": "#F5EFE3", "ink": "#17363A", "acc": "#E59A2F"},
         "dark": {"bg": "#10282B", "ink": "#F5EFE3", "acc": "#E59A2F"},
         "palette": [
@@ -37,8 +37,8 @@ TAKES = [
     },
     {
         "id": "tinta", "num": "2", "name": "Tinta",
-        "pitch": "Soft high-contrast serif. The cap sits upright-ish, nudged back, and the tassel hangs beside the C on its left like it is swinging past the face. The most trustworthy to a director, the least app-like. Weakest at 16 px: the thin serif hairlines break up, so the favicon leans fully on the simple version.",
-        "cap": "Medium (1.24 x), tilted 7 degrees clockwise, tassel hangs beside the C on the left.",
+        "pitch": "Soft high-contrast serif. The cap tilts left and melts into the C, and the tassel falls over the C on its left like it is swinging past the face. The small spike under the board is the serif C's own top beak. The most trustworthy to a director, the least app-like. Weakest at 16 px: the thin serif hairlines break up, so the favicon leans fully on the simple version.",
+        "cap": "Medium (1.30 x), tilted 8 degrees to the left, seamless with the C, tassel on the left.",
         "light": {"bg": "#FBF8F2", "ink": "#1C2541", "acc": "#C79A3B"},
         "dark": {"bg": "#141B30", "ink": "#FBF8F2", "acc": "#D8AE55"},
         "palette": [
@@ -55,8 +55,8 @@ TAKES = [
     },
     {
         "id": "trazo", "num": "3", "name": "Trazo",
-        "pitch": "Custom monoline lettering, like it was drawn with one marker. The cap is cocked hard to one side (17 degrees) and swallows the top of the C, so the letter becomes a face under a hat. The friendliest to a parent, the most ownable shape.",
-        "cap": "Large (1.36 x), tilted 17 degrees counterclockwise, tassel drops into the opening.",
+        "pitch": "Custom monoline lettering, like it was drawn with one marker. The cap is cocked hard to the left (17 degrees) and becomes the top of the C, so the letter becomes a face under a hat. The friendliest to a parent, the most ownable shape.",
+        "cap": "Large (1.36 x), tilted 17 degrees to the left, seamless with the C, tassel drops into the opening.",
         "light": {"bg": "#F3ECDD", "ink": "#1F3D2E", "acc": "#E3A600"},
         "dark": {"bg": "#13271D", "ink": "#F3ECDD", "acc": "#F2B705"},
         "palette": [
@@ -229,7 +229,7 @@ figure{{margin:0}} figcaption{{font-size:14px;color:var(--muted);margin-top:6px}
 <body><main>
 <div class="intro">
 <h1>miCole: three logo takes</h1>
-<p>Each take has its own lettering, cap angle, cap size and tassel. All marks are outlined vector paths (no font needed to display the logo). The 16 px "simple" version drops the band and tassel and keeps only the flat diamond, as briefed.</p>
+<p>Each take has its own lettering, cap size and tassel. Round 2: every cap now tilts to the left and joins the C as one shape (no gap between cap and letter). All marks are outlined vector paths (no font needed to display the logo). The 16 px "simple" version drops the band and tassel and keeps only the flat diamond, as briefed.</p>
 <p>Pick one take (or name parts to combine: "lettering from 3, cap angle from 1"). Nothing here is final until you pick.</p>
 <nav class="jump"><a href="#pizarra">1 Pizarra</a><a href="#tinta">2 Tinta</a><a href="#trazo">3 Trazo</a><a href="#side">Side by side</a></nav>
 </div>
