@@ -34,6 +34,41 @@ class FontLetters:
         adv = self.hmtx[name][0] * s
         return pen.getCommands(), bp.bounds, adv
 
+    def polygon(self, name, x):
+        """Glyph outline as a shapely Polygon in wordmark coords (sampled quadratics)."""
+        from fontTools.pens.recordingPen import RecordingPen
+        from shapely.geometry import Polygon
+        from shapely.ops import unary_union
+        rp = RecordingPen(); self.gs[name].draw(rp)
+        s = self.s
+        T = lambda p: (p[0] * s + x, -p[1] * s)
+        rings, cur, last = [], [], None
+        for op, args in rp.value:
+            if op == "moveTo":
+                cur = [T(args[0])]; last = args[0]
+            elif op == "lineTo":
+                cur.append(T(args[0])); last = args[0]
+            elif op == "qCurveTo":
+                offs, end = list(args[:-1]), args[-1]
+                if end is None:
+                    end = None
+                segs = []
+                p0 = last
+                for i, c in enumerate(offs):
+                    p2 = end if i == len(offs) - 1 else ((c[0] + offs[i + 1][0]) / 2, (c[1] + offs[i + 1][1]) / 2)
+                    segs.append((p0, c, p2)); p0 = p2
+                for a, c, b in segs:
+                    for k in range(1, 13):
+                        t = k / 12
+                        px = (1 - t) ** 2 * a[0] + 2 * (1 - t) * t * c[0] + t * t * b[0]
+                        py = (1 - t) ** 2 * a[1] + 2 * (1 - t) * t * c[1] + t * t * b[1]
+                        cur.append(T((px, py)))
+                last = end
+            elif op in ("closePath", "endPath"):
+                if len(cur) > 2: rings.append(Polygon(cur).buffer(0))
+                cur = []
+        return unary_union(rings)
+
     def layout(self, word, kern=None, swap=None):
         kern = kern or {}
         swap = swap or {}
@@ -170,6 +205,26 @@ def cap_svg(cx, cy, W, ang, tassel="right", simple=False, gap=None, flat=0.16, t
     return "\n".join(out), pts
 
 
+def geom_d(g):
+    from shapely.geometry import Polygon, MultiPolygon
+    polys = [g] if isinstance(g, Polygon) else list(getattr(g, "geoms", []))
+    d = ""
+    for p in polys:
+        if p.is_empty: continue
+        for ring in [p.exterior] + list(p.interiors):
+            c = list(ring.coords)
+            d += "M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in c[:-1]) + "Z"
+    return d
+
+
+def sample_path_pts(p0, c1, c2, p1, n=24):
+    out = []
+    for k in range(n + 1):
+        t = k / n
+        out.append(tuple((1-t)**3*p0[i] + 3*(1-t)**2*t*c1[i] + 3*(1-t)*t*t*c2[i] + t**3*p1[i] for i in (0, 1)))
+    return out
+
+
 def rounded_poly(pts, r):
     """Closed polygon path with corners rounded by distance r (quadratic corners)."""
     n = len(pts)
@@ -187,7 +242,7 @@ def rounded_poly(pts, r):
     return d + "Z"
 
 
-def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=0.42, tassel_len=0.27):
+def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=0.42, tassel_len=0.27, fit=None):
     """Drawn-with-care mortarboard. One cut-line width k (x W) everywhere."""
     def T(u, v):
         rx, ry = rot(u * W, v * W, ang)
@@ -201,7 +256,20 @@ def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=
     band = (f"M{lt[0]:.2f} {lt[1]:.2f}L{lb[0]:.2f} {lb[1]:.2f}"
             f"C{c1[0]:.2f} {c1[1]:.2f} {c2[0]:.2f} {c2[1]:.2f} {rb[0]:.2f} {rb[1]:.2f}"
             f"L{rt[0]:.2f} {rt[1]:.2f}Z")
-    out.append(f'<path class="ink gap" stroke-width="{g:.2f}" paint-order="stroke" stroke-linejoin="round" d="{band}"/>')
+    if fit is not None:
+        # carve the letter (grown by the cut width) out of the band: the band's underside
+        # then follows the exact curve of the C with an even gap all the way along
+        from shapely.geometry import Polygon
+        ring = [lt, lb] + sample_path_pts(lb, c1, c2, rb)[1:] + [rt]
+        bp = Polygon(ring).buffer(0)
+        carved = bp.difference(fit.buffer(g, join_style=1, resolution=24))
+        # keep only meaningful pieces (drop slivers)
+        parts_ = [p for p in getattr(carved, "geoms", [carved]) if p.area > (W * 0.04) ** 2]
+        from shapely.ops import unary_union
+        carved = unary_union(parts_)
+        out.append(f'<path class="ink" d="{geom_d(carved)}"/>')
+    else:
+        out.append(f'<path class="ink gap" stroke-width="{g:.2f}" paint-order="stroke" stroke-linejoin="round" d="{band}"/>')
     pts += [lt, rt, lb, rb, T(0, depth)]
     # board: slight perspective (back corner a touch shallower), softly rounded corners
     board = [T(-0.5, 0.0), T(0.03, -flat * 0.92), T(0.5, 0.0), T(-0.03, flat)]
@@ -319,7 +387,8 @@ def build_take(cfg):
     ccy = cy0 + cfg["seat"] * CAP_H - 0.27 * capW
     if cfg.get("refined"):
         r = cfg["refined"]
-        cap, cpts = cap_refined(ccx, ccy, capW, cfg["cap_angle"], **r)
+        fitpoly = L.polygon(L.cmap[ord("C")], C["x"]) if cfg.get("fit") else None
+        cap, cpts = cap_refined(ccx, ccy, capW, cfg["cap_angle"], fit=fitpoly, **r)
     elif cfg.get("fused"):
         f = dict(cfg["fused"]); f["W"] = cw * f["Wk"]; f["gap"] = f["W"] * 0.03
         cap, cpts = fused_cap(C["x"], f)
@@ -378,9 +447,9 @@ TAKES = [
     {
         "id": "pizarra", "name": "Pizarra", "kind": "font", "font": "bricolage700.ttf",
         "tracking": -4, "kern": {1: 12, 2: 8}, "dotless": True,
-        "cap_scale": 1.32, "cap_dx": -0.30, "seat": 0.10, "cap_angle": -18, "tassel": "right", "knock": 0.032,
+        "cap_scale": 1.32, "cap_dx": -0.30, "seat": 0.08, "fit": True, "cap_angle": -18, "tassel": "right", "knock": 0.032,
         "attach": 0.42, "bw": 0.34, "tassel_len": 0.30, "i_variant": False,
-        "refined": {"bw": 0.33, "depth": 0.30, "k": 0.042, "attach": 0.475, "tassel_len": 0.13},
+        "refined": {"bw": 0.36, "depth": 0.44, "k": 0.042, "attach": 0.475, "tassel_len": 0.13},
     },
     {
         "id": "tinta", "name": "Tinta", "kind": "font", "font": "fraunces600.ttf",
