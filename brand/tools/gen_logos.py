@@ -170,6 +170,64 @@ def cap_svg(cx, cy, W, ang, tassel="right", simple=False, gap=None, flat=0.16, t
     return "\n".join(out), pts
 
 
+def rounded_poly(pts, r):
+    """Closed polygon path with corners rounded by distance r (quadratic corners)."""
+    n = len(pts)
+    d = ""
+    for i in range(n):
+        p0, p1, p2 = pts[i - 1], pts[i], pts[(i + 1) % n]
+        def toward(a, b, dist):
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            L = math.hypot(dx, dy) or 1
+            k = min(dist, L / 2.2) / L
+            return a[0] + dx * k, a[1] + dy * k
+        a = toward(p1, p0, r if not isinstance(r, list) else r[i])
+        b = toward(p1, p2, r if not isinstance(r, list) else r[i])
+        d += ("M" if i == 0 else "L") + f"{a[0]:.2f} {a[1]:.2f}Q{p1[0]:.2f} {p1[1]:.2f} {b[0]:.2f} {b[1]:.2f}"
+    return d + "Z"
+
+
+def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=0.42, tassel_len=0.27):
+    """Drawn-with-care mortarboard. One cut-line width k (x W) everywhere."""
+    def T(u, v):
+        rx, ry = rot(u * W, v * W, ang)
+        return cx + rx, cy + ry
+    g = W * k
+    out, pts = [], []
+    # band: tapered sides, bottom edge a smooth cubic that echoes the bowl of the C
+    lt, rt = T(-bw, 0.0), T(bw, 0.0)
+    lb, rb = T(-bw * 0.93, depth * 0.62), T(bw * 0.93, depth * 0.62)
+    c1, c2 = T(-bw * 0.62, depth * 1.12), T(bw * 0.62, depth * 1.12)
+    band = (f"M{lt[0]:.2f} {lt[1]:.2f}L{lb[0]:.2f} {lb[1]:.2f}"
+            f"C{c1[0]:.2f} {c1[1]:.2f} {c2[0]:.2f} {c2[1]:.2f} {rb[0]:.2f} {rb[1]:.2f}"
+            f"L{rt[0]:.2f} {rt[1]:.2f}Z")
+    out.append(f'<path class="ink gap" stroke-width="{g:.2f}" paint-order="stroke" stroke-linejoin="round" d="{band}"/>')
+    pts += [lt, rt, lb, rb, T(0, depth)]
+    # board: slight perspective (back corner a touch shallower), softly rounded corners
+    board = [T(-0.5, 0.0), T(0.03, -flat * 0.92), T(0.5, 0.0), T(-0.03, flat)]
+    out.append(f'<path class="ink gap" stroke-width="{g:.2f}" paint-order="stroke" stroke-linejoin="round" '
+               f'd="{rounded_poly(board, [W*0.035, W*0.05, W*0.035, W*0.05])}"/>')
+    pts += board
+    # tassel: button, cord along the board to the edge, gravity drop, knot, fringe
+    cwid = W * 0.042
+    btn = T(-0.02, 0.0)
+    edge = T(attach, -0.015)
+    drop = (edge[0], edge[1] + W * tassel_len)
+    out.append(f'<path class="acc-s" fill="none" stroke-width="{cwid:.2f}" stroke-linecap="round" stroke-linejoin="round" '
+               f'd="M{btn[0]:.2f} {btn[1]:.2f}L{edge[0]:.2f} {edge[1]:.2f}L{drop[0]:.2f} {drop[1]:.2f}"/>')
+    kw, kh = W * 0.085, W * 0.05
+    x0, y0 = drop
+    out.append(f'<rect class="acc" x="{x0-kw/2:.2f}" y="{y0-kh*0.4:.2f}" width="{kw:.2f}" height="{kh:.2f}" rx="{kh*0.45:.2f}"/>')
+    fw, fh = W * 0.10, W * 0.17
+    fy = y0 + kh * 0.55
+    fr = fw * 0.42
+    out.append(f'<path class="acc" d="M{x0-fw*0.36:.2f} {fy:.2f}L{x0+fw*0.36:.2f} {fy:.2f}L{x0+fw/2:.2f} {fy+fh-fr:.2f}'
+               f'Q{x0+fw/2:.2f} {fy+fh:.2f} {x0:.2f} {fy+fh:.2f}Q{x0-fw/2:.2f} {fy+fh:.2f} {x0-fw/2:.2f} {fy+fh-fr:.2f}Z"/>')
+    out.append(f'<circle class="acc" cx="{btn[0]:.2f}" cy="{btn[1]:.2f}" r="{W*0.052:.2f}"/>')
+    pts += [(x0 - fw, fy + fh), (x0 + fw, fy + fh)]
+    return "\n".join(out), pts
+
+
 # ---------------------------------------------------------------- wordmark builders
 def letters_svg(parts, mono=False, sw=None, only=None):
     out = []
@@ -259,7 +317,10 @@ def build_take(cfg):
     capW = cw * cfg["cap_scale"]
     ccx = (cx0 + cx1) / 2 + cw * cfg["cap_dx"]
     ccy = cy0 + cfg["seat"] * CAP_H - 0.27 * capW
-    if cfg.get("fused"):
+    if cfg.get("refined"):
+        r = cfg["refined"]
+        cap, cpts = cap_refined(ccx, ccy, capW, cfg["cap_angle"], **r)
+    elif cfg.get("fused"):
         f = dict(cfg["fused"]); f["W"] = cw * f["Wk"]; f["gap"] = f["W"] * 0.03
         cap, cpts = fused_cap(C["x"], f)
     else:
@@ -316,9 +377,10 @@ def build_take(cfg):
 TAKES = [
     {
         "id": "pizarra", "name": "Pizarra", "kind": "font", "font": "bricolage700.ttf",
-        "tracking": -4, "kern": {1: 28, 2: 8},
+        "tracking": -4, "kern": {1: 28, 2: 22},
         "cap_scale": 1.32, "cap_dx": -0.04, "seat": 0.25, "cap_angle": -10, "tassel": "right", "knock": 0.032,
         "attach": 0.42, "bw": 0.34, "tassel_len": 0.30, "i_variant": True,
+        "refined": {"bw": 0.33, "depth": 0.30, "k": 0.042, "attach": 0.475, "tassel_len": 0.27},
     },
     {
         "id": "tinta", "name": "Tinta", "kind": "font", "font": "fraunces600.ttf",

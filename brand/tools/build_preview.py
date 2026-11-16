@@ -19,8 +19,8 @@ def contrast(a, b):
 TAKES = [
     {
         "id": "pizarra", "num": "1", "name": "Pizarra",
-        "pitch": "Chunky grotesque. The cap is pulled down over the C and leans left toward the i. A thin knockout line around the band cuts through the C, so the letter reads as continuing under the cap, like a stencil. The tassel drops into the opening of the C. The most confident and the most legible small. Reads like a product, not a school crest.",
-        "cap": "Round 6: board 1.32 x the C width, tilted 10 degrees to the left, sunk deeper into the C, knockout outline on the band only, tassel into the opening.",
+        "pitch": "Chunky grotesque. The cap is pulled down over the C and leans left toward the i. A knockout line cuts through the C, so the letter reads as continuing under the cap, like a stencil. The cap is drawn to match the type: softly rounded board corners, a band whose lower edge echoes the curve of the C, one cut-line width throughout, and a cord, knot and tassel weighted to sit with the heavy letters. The tassel falls clear between the C and the o. The most confident and the most legible small. Reads like a product, not a school crest.",
+        "cap": "Round 7: same pose as round 6, cap redrawn for craft. Board 1.32 x the C width, tilted 10 degrees left, cut line 4% of the board width.",
         "light": {"bg": "#F5EFE3", "ink": "#17363A", "acc": "#E59A2F"},
         "dark": {"bg": "#10282B", "ink": "#F5EFE3", "acc": "#E59A2F"},
         "palette": [
