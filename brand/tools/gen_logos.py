@@ -378,7 +378,7 @@ TAKES = [
     {
         "id": "pizarra", "name": "Pizarra", "kind": "font", "font": "bricolage700.ttf",
         "tracking": -4, "kern": {1: 12, 2: 8},
-        "cap_scale": 1.32, "cap_dx": -0.04, "seat": 0.10, "cap_angle": -10, "tassel": "right", "knock": 0.032,
+        "cap_scale": 1.32, "cap_dx": 0.02, "seat": 0.10, "cap_angle": -18, "tassel": "right", "knock": 0.032,
         "attach": 0.42, "bw": 0.34, "tassel_len": 0.30, "i_variant": True,
         "refined": {"bw": 0.33, "depth": 0.30, "k": 0.042, "attach": 0.475, "tassel_len": 0.13},
     },
