@@ -120,7 +120,7 @@ def rot(px, py, ang):
     return px * math.cos(a) - py * math.sin(a), px * math.sin(a) + py * math.cos(a)
 
 
-def cap_svg(cx, cy, W, ang, tassel="right", simple=False, gap=None, flat=0.16, tassel_len=0.40, attach=0.43, bw=0.28):
+def cap_svg(cx, cy, W, ang, tassel="right", simple=False, gap=None, flat=0.16, tassel_len=0.40, attach=0.43, bw=0.28, knock=0.0):
     """Mortarboard centred at board centre (cx, cy), board width W, rotated ang deg.
 
     Fill classes: .ink for the cap, .acc for the tassel, gap stroke uses .gap (bg colour).
@@ -140,7 +140,8 @@ def cap_svg(cx, cy, W, ang, tassel="right", simple=False, gap=None, flat=0.16, t
         band = [(-0.29, 0.05), (-0.29, 0.29), None, (0.29, 0.29), (0.29, 0.05)]
         a = T(-bw, 0.04); b = T(-bw + 0.005, 0.22); c = T(0, 0.31); d = T(bw - 0.005, 0.22); e = T(bw, 0.04)
         pts += [a, b, c, d, e]
-        out.append(f'<path class="ink" '
+        kn = f'class="ink gap" stroke-width="{W*knock:.2f}" paint-order="stroke" stroke-linejoin="round" ' if knock else 'class="ink" '
+        out.append(f'<path {kn}'
                    f'd="M{a[0]:.2f} {a[1]:.2f}L{b[0]:.2f} {b[1]:.2f}Q{c[0]:.2f} {c[1]:.2f} {d[0]:.2f} {d[1]:.2f}L{e[0]:.2f} {e[1]:.2f}Z"/>')
     d = "M" + "L".join(f"{x:.2f} {y:.2f}" for x, y in bpts) + "Z"
     out.append(f'<path class="ink gap" stroke-width="{g:.2f}" paint-order="stroke" stroke-linejoin="round" d="{d}"/>')
@@ -151,6 +152,13 @@ def cap_svg(cx, cy, W, ang, tassel="right", simple=False, gap=None, flat=0.16, t
         cw = W * 0.028
         hang_top = corner
         hang_bot = (corner[0], corner[1] + W * tassel_len)
+        tpath = f'M{btn[0]:.2f} {btn[1]:.2f}L{corner[0]:.2f} {corner[1]:.2f}L{hang_bot[0]:.2f} {hang_bot[1]:.2f}'
+        if False:
+            # background-coloured halo under the hanging cord so it cuts the letter cleanly
+            hb = f'M{corner[0]:.2f} {corner[1]+W*0.06:.2f}L{hang_bot[0]:.2f} {hang_bot[1]+W*0.12:.2f}'
+            out.append(f'<path class="gap" fill="none" stroke-width="{cw + 2*W*knock:.2f}" stroke-linecap="round" d="{hb}"/>')
+            out.append(f'<path class="gap" fill="none" stroke-width="{W*0.075 + 2*W*knock:.2f}" stroke-linecap="round" '
+                       f'd="M{hang_bot[0]:.2f} {hang_bot[1]+W*0.02:.2f}L{hang_bot[0]:.2f} {hang_bot[1]+W*0.15:.2f}"/>')
         out.append(f'<path class="acc-s" fill="none" stroke-width="{cw:.2f}" stroke-linecap="round" stroke-linejoin="round" '
                    f'd="M{btn[0]:.2f} {btn[1]:.2f}L{corner[0]:.2f} {corner[1]:.2f}L{hang_bot[0]:.2f} {hang_bot[1]:.2f}"/>')
         tw, tl = W * 0.075, W * 0.17
@@ -256,7 +264,7 @@ def build_take(cfg):
         cap, cpts = fused_cap(C["x"], f)
     else:
         cap, cpts = cap_svg(ccx, ccy, capW, cfg["cap_angle"], tassel=cfg["tassel"],
-                            tassel_len=cfg.get("tassel_len", 0.40), attach=cfg.get("attach", 0.43), bw=cfg.get("bw", 0.28))
+                            tassel_len=cfg.get("tassel_len", 0.40), attach=cfg.get("attach", 0.43), bw=cfg.get("bw", 0.28), knock=cfg.get("knock", 0.0))
     letter_pts = []
     for p in parts:
         b = p["b"]; letter_pts += [(b[0], b[1]), (b[2], b[3])]
@@ -308,9 +316,9 @@ def build_take(cfg):
 TAKES = [
     {
         "id": "pizarra", "name": "Pizarra", "kind": "font", "font": "bricolage700.ttf",
-        "tracking": -4, "kern": {1: 20, 2: 6},
-        "cap_scale": 1.32, "cap_dx": -0.15, "seat": 0.13, "cap_angle": -10, "tassel": "right",
-        "attach": 0.40, "bw": 0.29, "tassel_len": 0.34, "i_variant": True,
+        "tracking": -4, "kern": {1: 28, 2: 8},
+        "cap_scale": 1.32, "cap_dx": -0.04, "seat": 0.25, "cap_angle": -10, "tassel": "right", "knock": 0.032,
+        "attach": 0.42, "bw": 0.34, "tassel_len": 0.30, "i_variant": True,
     },
     {
         "id": "tinta", "name": "Tinta", "kind": "font", "font": "fraunces600.ttf",
