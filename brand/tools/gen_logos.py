@@ -189,6 +189,53 @@ def svg_wrap(inner, vb, extra=""):
             f'{inner}</svg>')
 
 
+def fused_cap(X, f):
+    """Pizarra round 4: cap whose band grows out of the C's top terminal.
+
+    X = pen x of the C. All C-local numbers are Bricolage C outline coords (cap height 140).
+    f: dict with bx, by (board centre, C-local), W, ang, flat, swing (deg from vertical), hang, gap.
+    """
+    W, ang, flat = f["W"], f["ang"], f["flat"]
+    cx, cy = X + f["bx"], f["by"]
+    def T(u, v):
+        rx, ry = rot(u * W, v * W, ang)
+        return cx + rx, cy + ry
+    board = [T(-0.5, 0), T(0.04, -flat), T(0.5, 0), T(-0.04, flat)]
+    # band: from under the board down into the C, right edge lands on the top terminal,
+    # bottom follows the inner curve of the C so the counter stays open
+    tl = T(-0.17, 0.06)
+    tr = T(0.40, 0.02)
+    band = [tl, tr, (X + 125.6, -90.0), (X + 96.9, -86.5), (X + 95.6, -99.0), (X + 89.5, -110.0),
+            (X + 79.0, -117.3), (X + 70.0, -118.3), (X + 50.0, -120.0), (X + 32.0, -130.0)]
+    out = []
+    out.append('<path class="ink" d="M' + "L".join(f"{x:.2f} {y:.2f}" for x, y in band) + 'Z"/>')
+    g = f["gap"]
+    out.append(f'<path class="ink gap" stroke-width="{g:.2f}" paint-order="stroke" stroke-linejoin="round" d="M'
+               + "L".join(f"{x:.2f} {y:.2f}" for x, y in board) + 'Z"/>')
+    # tassel: button left of centre, cord to the high right corner, then swings out to the right
+    btn = T(-0.02, 0.0)
+    knot = T(0.36, -0.035)
+    a = math.radians(f["swing"])
+    L = W * f["hang"]
+    end = (knot[0] + L * math.sin(a), knot[1] + L * math.cos(a))
+    cw = W * 0.03
+    out.append(f'<path class="acc-s" fill="none" stroke-width="{cw:.2f}" stroke-linecap="round" stroke-linejoin="round" '
+               f'd="M{btn[0]:.2f} {btn[1]:.2f}L{knot[0]:.2f} {knot[1]:.2f}L{end[0]:.2f} {end[1]:.2f}"/>')
+    tl_len, tw = W * 0.19, W * 0.085
+    dx, dy = math.sin(a), math.cos(a)
+    px_, py_ = dy, -dx  # perpendicular
+    p0 = (end[0] - dx * W * 0.02, end[1] - dy * W * 0.02)
+    p1 = (end[0] + dx * tl_len, end[1] + dy * tl_len)
+    q = lambda p, k: (p[0] + px_ * k, p[1] + py_ * k)
+    a0, a1, b1, b0 = q(p0, tw * 0.32), q(p0, -tw * 0.32), q(p1, -tw * 0.55), q(p1, tw * 0.55)
+    tip = (p1[0] + dx * W * 0.035, p1[1] + dy * W * 0.035)
+    out.append(f'<path class="acc" d="M{a0[0]:.2f} {a0[1]:.2f}L{a1[0]:.2f} {a1[1]:.2f}L{b1[0]:.2f} {b1[1]:.2f}'
+               f'Q{tip[0]:.2f} {tip[1]:.2f} {b0[0]:.2f} {b0[1]:.2f}Z"/>')
+    out.append(f'<circle class="acc" cx="{btn[0]:.2f}" cy="{btn[1]:.2f}" r="{W*0.04:.2f}"/>')
+    pts = board + band + [end, tip, b0, b1]
+    return "\n".join(out), pts
+
+
 def build_take(cfg):
     if cfg["kind"] == "mono":
         L = MonoLetters()
@@ -204,8 +251,12 @@ def build_take(cfg):
     capW = cw * cfg["cap_scale"]
     ccx = (cx0 + cx1) / 2 + cw * cfg["cap_dx"]
     ccy = cy0 + cfg["seat"] * CAP_H - 0.27 * capW
-    cap, cpts = cap_svg(ccx, ccy, capW, cfg["cap_angle"], tassel=cfg["tassel"],
-                        tassel_len=cfg.get("tassel_len", 0.40), attach=cfg.get("attach", 0.43), bw=cfg.get("bw", 0.28))
+    if cfg.get("fused"):
+        f = dict(cfg["fused"]); f["W"] = cw * f["Wk"]; f["gap"] = f["W"] * 0.03
+        cap, cpts = fused_cap(C["x"], f)
+    else:
+        cap, cpts = cap_svg(ccx, ccy, capW, cfg["cap_angle"], tassel=cfg["tassel"],
+                            tassel_len=cfg.get("tassel_len", 0.40), attach=cfg.get("attach", 0.43), bw=cfg.get("bw", 0.28))
     letter_pts = []
     for p in parts:
         b = p["b"]; letter_pts += [(b[0], b[1]), (b[2], b[3])]
@@ -257,9 +308,10 @@ def build_take(cfg):
 TAKES = [
     {
         "id": "pizarra", "name": "Pizarra", "kind": "font", "font": "bricolage700.ttf",
-        "tracking": -4, "kern": {1: 14, 2: 4},
-        "cap_scale": 1.44, "cap_dx": 0.03, "seat": 0.16, "cap_angle": -11, "tassel": "right",
+        "tracking": -4, "kern": {1: 22, 2: 10},
+        "cap_scale": 1.44, "cap_dx": -0.12, "seat": 0.16, "cap_angle": -17, "tassel": "right",
         "attach": 0.36, "bw": 0.33, "tassel_len": 0.30, "i_variant": True,
+        "fused": {"bx": 46, "by": -178, "Wk": 1.42, "ang": -17, "flat": 0.17, "swing": 24, "hang": 0.42},
     },
     {
         "id": "tinta", "name": "Tinta", "kind": "font", "font": "fraunces600.ttf",

@@ -19,8 +19,8 @@ def contrast(a, b):
 TAKES = [
     {
         "id": "pizarra", "num": "1", "name": "Pizarra",
-        "pitch": "Chunky grotesque, cap tilted left and grown into the top of the C, tassel dropping into the opening. The most confident and the most legible small. Reads like a product, not a school crest.",
-        "cap": "Large (1.44 x the C width), tilted 11 degrees to the left, seamless with the C, tassel into the opening.",
+        "pitch": "Chunky grotesque. The cap tilts left and its band grows straight out of the top end of the C, so cap and letter are one shape. The tassel swings out to the right, toward the rest of the name. The most confident and the most legible small. Reads like a product, not a school crest.",
+        "cap": "Round 4, built from your reference, mirrored: board 1.42 x the C width, tilted 17 degrees to the left, band fused with the C, tassel swinging right.",
         "light": {"bg": "#F5EFE3", "ink": "#17363A", "acc": "#E59A2F"},
         "dark": {"bg": "#10282B", "ink": "#F5EFE3", "acc": "#E59A2F"},
         "palette": [
