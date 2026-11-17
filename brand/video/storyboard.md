@@ -2,7 +2,7 @@
 
 PIECE: logo sting / teaser, prototype   LENGTH: 8 s   RATIO: 9:16 (1080x1920) first, 16:9 and 1:1 after approval
 LEVEL: 1 (flat motion, drawn in code from the real logo file)   LANGUAGE: Venezuelan Spanish
-CTA: "En construcción" + "Agenda una conversación" (changed from "Muy pronto" on 2026-11-17: no launch date is known)
+CTA: "En construcción" + "Escríbame por WhatsApp o por correo" + "+58 424 279 9280 · churtado96@gmail.com" (updated 2026-11-17 to match the site)
 PALETTE: Papel #F5EFE3 background, Pizarra #17363A ink, Mango #E59A2F accent. Bricolage Grotesque 700 for text.
 
 The idea in one line: a single mango dot becomes a mortarboard, the mortarboard lands on a C, and the C becomes miCole. One continuous move, no cuts.
