@@ -28,14 +28,17 @@ It is not the product. Nothing a director types leaves their phone.
 
 | Slice | Flow | Roles |
 |---|---|---|
-| 1 | Circular + who read it: publish, receive, confirm, see the read list (e.g. "18 de 24 familias") | Dirección, Representante |
-| 2 | Momentos del día: text plus an optional photo from a small set of bundled demo images | Docente, Representante |
-| 3 | Tareas: what to bring and for when | Docente, Representante |
-| 4 | Asistencia: tap through a list of 24 students; the representante sees "llegó a las 7:15" or a "ausente" notice | Docente, Representante |
+| 1 | Circular + who read it: publish, receive, confirm, see the read list (e.g. "18 de 24 representantes") (done) | Dirección, Representante |
+| 2 | Messages with office hours: 7:00 a.m. to 3:30 p.m. by default; after hours, messages wait until the next school day; Dirección can read conversations and change the hours | Representante, Docente, Dirección |
+| 3 | Momentos del día + gallery per grade | Docente, Representante |
+| 4 | Tareas: what to bring and for when | Docente, Representante |
+| 5 | Asistencia: tap through a list of 24 students; the representante sees "llegó a las 7:15" or "ausente" | Docente, Representante |
+
+Order changed 2026-11-17 after the brainstorm in `IDEAS.md`. Messaging moved up; asistencia stays.
 
 Slice 1 alone is already worth showing. After each slice I stop, you try it on your phone, and then we go on.
 
-**Out of scope for the demo:** real login, real notifications, Instagram posting, QR sign-up, grades and boletines, multiple secciones or children, chat or replies, email sending, and an admin panel.
+**Out of scope for the demo:** real login, real notifications, Instagram posting, Google Classroom, QR sign-up, grades and boletines, multiple secciones or children, email sending, teacher and student profiles, and an admin panel.
 
 ## 5. Constraints
 - **Brand:** the miCole brand from `brand/final/`, the same tokens as the site (Papel, Pizarra, Mango, Salvia, Tiza), Bricolage Grotesque 400 and 700, and the logo. Do not use christian-brand.

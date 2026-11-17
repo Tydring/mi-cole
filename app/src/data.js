@@ -65,7 +65,10 @@ export function seed() {
     return { id, title, body, audience, publishedAt, speed: 90, reads: { [DEMO_REP]: publishedAt + 2.6 * H } };
   };
   return {
-    v: 1,
+    v: 2,
+    close: DEFAULT_CLOSE,
+    clock: { mode: "real" },
+    ...seedMensajes(),
     circulares: [
       c("s3", 1, 16, 10, "4A", "Reunión de representantes de 4to grado A",
         "Les invitamos a la reunión de representantes de 4to grado A el jueves a las 7:00 a.m. en el salón. Hablaremos del cierre del primer lapso y de las actividades de diciembre. Agradecemos su puntualidad."),
@@ -103,3 +106,61 @@ export function cuando(ts, now) {
   return `${a.getDate()} ${MESES[a.getMonth()]}`;
 }
 export const audienceLabel = (a) => (a === "all" ? "Todo el colegio" : seccionById(a).name);
+
+/* ---------- messages with office hours ----------
+   Default: 7:00 a.m. to 3:30 p.m., Monday to Friday. Each school can change the closing time. */
+export const OPEN_MIN = 7 * 60;
+export const DEFAULT_CLOSE = 15 * 60 + 30;
+export const CLOSE_OPTIONS = [14 * 60, 15 * 60 + 30, 17 * 60];
+const isSchoolDay = (d) => d.getDay() >= 1 && d.getDay() <= 5;
+export function isOpen(ts, close) {
+  const d = new Date(ts), m = d.getHours() * 60 + d.getMinutes();
+  return isSchoolDay(d) && m >= OPEN_MIN && m < close;
+}
+/* The moment a message written at ts reaches the other side. */
+export function deliverAt(ts, close) {
+  if (isOpen(ts, close)) return ts;
+  const d = new Date(ts);
+  const m = d.getHours() * 60 + d.getMinutes();
+  if (!(isSchoolDay(d) && m < OPEN_MIN)) d.setDate(d.getDate() + 1);
+  while (!isSchoolDay(d)) d.setDate(d.getDate() + 1);
+  d.setHours(7, 0, 0, 0);
+  return d.getTime();
+}
+export function horaMin(min) { const d = new Date(); d.setHours(Math.floor(min / 60), min % 60, 0, 0); return hora(d.getTime()); }
+/* "mañana a las 7:00 a.m.", "el lunes a las 7:00 a.m.", "hoy a las 7:00 a.m." */
+export function cuandoLlega(ts, now) {
+  const day = (x) => { const d = new Date(x); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+  const diff = Math.round((day(ts) - day(now)) / D);
+  const h = hora(ts);
+  if (diff <= 0) return `hoy a las ${h}`;
+  if (diff === 1) return `mañana a las ${h}`;
+  return `el ${DIAS[new Date(ts).getDay()]} a las ${h}`;
+}
+function prevSchoolDay(daysBack = 1) {
+  const d = new Date(); d.setDate(d.getDate() - daysBack);
+  while (!isSchoolDay(d)) d.setDate(d.getDate() - 1);
+  return d;
+}
+const atDay = (d, h, m) => { const x = new Date(d); x.setHours(h, m, 0, 0); return x.getTime(); };
+export const DOCENTE = { name: "Prof. Andrea Méndez", role: "Docente de 4to grado A" };
+export const repById = (id) => REPS.find((r) => r.id === id);
+
+export function seedMensajes() {
+  const y = prevSchoolDay(1);
+  const y2 = new Date(y); y2.setDate(y2.getDate() - 1); while (!isSchoolDay(y2)) y2.setDate(y2.getDate() - 1);
+  const m = (thread, from, ts, text) => ({ id: thread + ts + from, thread, from, text, sentAt: ts, deliverAt: deliverAt(ts, DEFAULT_CLOSE) });
+  const t4A = REPS.filter((r) => r.seccion === "4A" && r.id !== DEMO_REP);
+  const a = t4A[2].id, b = t4A[9].id;
+  return {
+    mensajes: [
+      m(DEMO_REP, "rep", atDay(y, 10, 12), "Buenos días, profesora. Sofía dejó el cuaderno de Matemáticas en el carro. ¿Lo puede entregar mañana?"),
+      m(DEMO_REP, "doc", atDay(y, 10, 40), "Buenos días. Sí, no hay problema. Que lo traiga mañana con la tarea completa."),
+      m(DEMO_REP, "rep", atDay(y, 10, 42), "¡Muchas gracias!"),
+      m(a, "rep", atDay(y2, 14, 50), "Profesora, ¿la salida al museo necesita autorización firmada?"),
+      m(a, "doc", atDay(y2, 15, 5), "Sí, la enviamos en la carpeta. Debe volver firmada antes del jueves."),
+      m(b, "rep", atDay(y, 20, 15), `Buenas noches, profesora. Mañana ${repById(b).child.split(" ")[0]} llega un poco tarde por una cita médica.`),
+    ],
+    seen: { [DEMO_REP + ":rep"]: atDay(y, 11, 0), [DEMO_REP + ":doc"]: atDay(y, 11, 0), [a + ":doc"]: atDay(y2, 16, 0) },
+  };
+}
