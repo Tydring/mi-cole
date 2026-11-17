@@ -242,7 +242,7 @@ def rounded_poly(pts, r):
     return d + "Z"
 
 
-def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=0.42, tassel_len=0.27, fit=None, front=None):
+def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=0.42, tassel_len=0.27, fit=None, front=None, trim=None, ringw=0.11):
     """Drawn-with-care mortarboard. One cut-line width k (x W) everywhere."""
     def T(u, v):
         rx, ry = rot(u * W, v * W, ang)
@@ -285,6 +285,13 @@ def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=
         # keep only meaningful pieces (drop slivers)
         parts_ = [p for p in getattr(carved, "geoms", [carved]) if p.area > (W * 0.04) ** 2]
         from shapely.ops import unary_union
+        carved = unary_union(parts_)
+        from shapely.geometry import box as sbox
+        if trim == "x":      # nothing of the band hangs left of the C
+            carved = carved.intersection(sbox(fit.bounds[0] + g * 0.5, -1e4, 1e4, 1e4))
+        elif trim == "ring": # band is an even ring hugging the C, like a hatband on a head
+            carved = carved.intersection(fit.buffer(g + W * ringw, join_style=1, resolution=32))
+        parts_ = [p for p in getattr(carved, "geoms", [carved]) if p.area > (W * 0.04) ** 2]
         carved = unary_union(parts_)
         out.append(f'<path class="ink" d="{geom_d(carved)}"/>')
     else:
