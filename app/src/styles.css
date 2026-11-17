@@ -237,3 +237,18 @@ ul{list-style:none;margin:0;padding:0}
 .foto figure{margin:4px 0 0}
 .foto img{width:100%;border-radius:14px;display:block;background:#fff}
 .foto figcaption{display:grid;gap:4px;margin-top:12px}
+
+/* ---------- slice 5: tareas ---------- */
+.tabbar button{font-size:12px;min-width:0;padding:0 2px}
+.tarea{display:grid;gap:6px;background:#fff;border:1px solid var(--linea);border-radius:16px;padding:14px 16px}
+.tarea.is-done .card-t{text-decoration:line-through;text-decoration-color:var(--salvia);color:var(--tiza)}
+.mat{background:var(--pizarra);color:var(--papel);font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px}
+.tarea-d{color:var(--tiza);font-size:15px}
+.traer-l{justify-self:start;background:#fdf1de;border:1px solid #f0cf9a;color:var(--mango-tinta);font-weight:700;font-size:14px;border-radius:999px;padding:3px 10px}
+.traer{background:#fdf1de;border:1px solid #f0cf9a;border-radius:16px;padding:12px 16px;margin-bottom:6px}
+.traer ul{margin-top:4px;display:grid;gap:2px;font-size:15px}
+.check{justify-self:start;display:inline-flex;align-items:center;gap:10px;border:0;background:none;min-height:44px;font-weight:700;font-size:15px;padding:0}
+.check .box{width:24px;height:24px;border-radius:7px;border:2px solid var(--salvia);display:grid;place-items:center;font-size:15px;line-height:1}
+.check.on .box{background:var(--pizarra);border-color:var(--pizarra);color:var(--papel)}
+.toggle{display:flex;align-items:center;gap:10px;font-weight:700;min-height:44px;margin:4px 0}
+.toggle input{width:22px;height:22px;accent-color:var(--pizarra)}

@@ -3,7 +3,7 @@ import { useDemo, useNow, demoNow } from "./store.js";
 import {
   SECCIONES, TOTAL, DEMO_REP, DEMO_CHILD, EJEMPLO, DOCENTE, CLOSE_OPTIONS,
   repsFor, repById, readAt, readStats, cuando, hora, horaMin, audienceLabel, seccionById, isOpen, deliverAt, cuandoLlega,
-  ILUS, SIN_PERMISO, TIPOS, MOTIVOS, ESTADOS, dayKey, keyToTs, schoolDayFrom, isSchoolDayKey, dayLabel,
+  MATERIAS, ILUS, SIN_PERMISO, TIPOS, MOTIVOS, ESTADOS, dayKey, keyToTs, schoolDayFrom, isSchoolDayKey, dayLabel,
 } from "./data.js";
 
 const ROLES = [
@@ -13,8 +13,8 @@ const ROLES = [
 ];
 const TABS = {
   direccion: [{ id: "circulares", label: "Circulares" }, { id: "avisos", label: "Avisos" }, { id: "mensajes", label: "Mensajes" }],
-  docente: [{ id: "asistencia", label: "Asistencia" }, { id: "momentos", label: "Momentos" }, { id: "mensajes", label: "Mensajes" }],
-  representante: [{ id: "circulares", label: "Circulares" }, { id: "momentos", label: "Momentos" }, { id: "asistencia", label: "Asistencia" }, { id: "mensajes", label: "Mensajes" }],
+  docente: [{ id: "asistencia", label: "Asistencia" }, { id: "momentos", label: "Momentos" }, { id: "tareas", label: "Tareas" }, { id: "mensajes", label: "Mensajes" }],
+  representante: [{ id: "circulares", label: "Circulares" }, { id: "momentos", label: "Momentos" }, { id: "tareas", label: "Tareas" }, { id: "asistencia", label: "Asistencia" }, { id: "mensajes", label: "Mensajes" }],
 };
 const HOME = { direccion: "circulares", docente: "asistencia", representante: "circulares" };
 const CLOCKS = [
@@ -67,8 +67,9 @@ export default function App() {
   const newAvisos = state.avisos.filter((a) => !a.seenAt && a.sentAt <= now).length;
   const askedJust = state.avisos.filter((a) => a.rep === DEMO_REP && a.estado === "pendiente").length;
   const repMom = state.momentos.filter((m) => m.at <= now && m.at > (state.seen["momentos:rep"] || 0)).length;
-  const badges = { direccion: { avisos: newAvisos }, docente: { mensajes: docMsg }, representante: { circulares: repCirc, momentos: repMom, mensajes: repMsg, asistencia: askedJust } };
-  const pings = { direccion: newAvisos > 0, docente: docMsg > 0, representante: repCirc + repMsg + askedJust + repMom > 0 };
+  const repTar = state.tareas.filter((t) => t.publishedAt <= now && t.publishedAt > (state.seen["tareas:rep"] || 0)).length;
+  const badges = { direccion: { avisos: newAvisos }, docente: { mensajes: docMsg }, representante: { circulares: repCirc, momentos: repMom, tareas: repTar, mensajes: repMsg, asistencia: askedJust } };
+  const pings = { direccion: newAvisos > 0, docente: docMsg > 0, representante: repCirc + repMsg + askedJust + repMom + repTar > 0 };
 
   const reset = () => {
     if (!confirm("¿Reiniciar la demo? Se borra todo lo que se publicó y escribió, y vuelve al inicio.")) return;
@@ -89,6 +90,8 @@ export default function App() {
   else if (screen.name === "foto") view = <Foto ctx={ctx} id={screen.id} i={screen.i} />;
   else if (screen.name === "momentoNuevo") view = <MomentoNuevo ctx={ctx} />;
   else if (tab === "momentos" && atHome) view = <Momentos ctx={ctx} side={role === "docente" ? "doc" : "rep"} />;
+  else if (screen.name === "tareaNueva") view = <TareaNueva ctx={ctx} />;
+  else if (tab === "tareas" && atHome) view = role === "docente" ? <DocTareas ctx={ctx} /> : <RepTareas ctx={ctx} />;
   else if (role === "direccion") {
     if (screen.name === "compose") view = <DirCompose ctx={ctx} />;
     else if (screen.name === "circular") view = <DirCircular ctx={ctx} id={screen.id} />;
@@ -110,7 +113,7 @@ export default function App() {
         <nav className="tabbar" aria-label="Secciones">
           {TABS[role].map((t) => (
             <button key={t.id} type="button" className={tab === t.id ? "on" : ""} aria-current={tab === t.id ? "page" : undefined} onClick={() => setTab(t.id)}>
-              {t.id === "circulares" ? <IconDoc /> : t.id === "mensajes" ? <IconChat /> : t.id === "momentos" ? <IconImg /> : <IconCheck />}
+              {t.id === "circulares" ? <IconDoc /> : t.id === "mensajes" ? <IconChat /> : t.id === "momentos" ? <IconImg /> : t.id === "tareas" ? <IconBook /> : <IconCheck />}
               <span>{t.label}</span>
               {badges[role][t.id] > 0 && <b className="badge">{badges[role][t.id]}</b>}
             </button>
@@ -167,6 +170,7 @@ const IconCheck = svg(<><rect x="4" y="4" width="16" height="16" rx="3" /><path 
 const IconCam = svg(<><path d="M4 8h3l2-2.5h6L17 8h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></>, 20);
 const IconImg = svg(<><rect x="3.5" y="5" width="17" height="14" rx="2.5" /><circle cx="9" cy="10" r="1.8" /><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5" /></>);
 const IconHeart = svg(<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />, 20);
+const IconBook = svg(<><path d="M5 4.5h10.5a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z" /><path d="M5 17a3 3 0 0 1 3-3h10.5" /></>);
 const IconSend = svg(<path d="M4 12 20 4l-5 16-3-7z" />);
 
 function Head({ title, sub }) {
@@ -457,7 +461,7 @@ function DocMensajes({ ctx }) {
       <h1>Mensajes</h1>
       <HoursNote state={ctx.state} now={now} />
       <ThreadList ctx={ctx} side="doc" list={threads(ctx.state)} />
-      <p className="hint center">Las tareas llegan en el próximo paso de la demo.</p>
+      
     </>
   );
 }
@@ -895,5 +899,125 @@ function Foto({ ctx, id, i }) {
         <figcaption><span className="meta">{DOCENTE.name} · {cuando(m.at, now)}{m.illus ? " · Ilustración de ejemplo" : ""}</span>{m.text}</figcaption>
       </figure>
     </div>
+  );
+}
+
+/* ---------- tareas ---------- */
+function dueGroups(list, now) {
+  const today = dayKey(now), next = schoolDayFrom(now, isSchoolDayKey(today) ? 1 : 0);
+  return [
+    ["Para " + dayLabel(next, now), list.filter((t) => t.due === next)],
+    ["Más adelante", list.filter((t) => t.due > next)],
+    ["Para hoy", list.filter((t) => t.due === today && today !== next)],
+    ["Anteriores", list.filter((t) => t.due < today)],
+  ].filter(([, l]) => l.length);
+}
+const dueText = (t, now) => `Para ${dayLabel(t.due, now)}`;
+
+function RepTareas({ ctx }) {
+  const now = useNow(ctx.state.clock, 30000);
+  const list = ctx.state.tareas.filter((t) => t.publishedAt <= now);
+  useEffect(() => { ctx.markSeen("tareas", "rep"); list.forEach((t) => !t.reads[DEMO_REP] && ctx.seeTarea(t.id, DEMO_REP)); }, [list.length]);
+  const traer = list.filter((t) => t.traer && t.due >= dayKey(now) && !t.done);
+  return (
+    <>
+      <Head title={DEMO_CHILD} sub="4to grado A · Colegio Demo" />
+      <h1>Tareas</h1>
+      {traer.length > 0 && (
+        <section className="traer"><b>Hay que traer</b><ul>{traer.map((t) => <li key={t.id}>{t.traer} · {dayLabel(t.due, now)} ({t.materia})</li>)}</ul></section>
+      )}
+      {dueGroups(list, now).map(([g, l]) => (
+        <section key={g}>
+          <h2>{g.replace(/^Para (.)/, (m, c) => "Para " + c)}</h2>
+          <ul className="cards">
+            {l.sort((a, b) => a.due.localeCompare(b.due)).map((t) => (
+              <li key={t.id} className={"tarea" + (t.done ? " is-done" : "")}>
+                <span className="meta"><span className="mat">{t.materia}</span>{dueText(t, now)}</span>
+                <span className="card-t">{t.title}</span>
+                <span className="tarea-d">{t.detail}</span>
+                {t.traer && <span className="traer-l">Traer: {t.traer}</span>}
+                <button type="button" className={"check" + (t.done ? " on" : "")} aria-pressed={t.done} onClick={() => ctx.toggleDone(t.id)}>
+                  <span className="box" aria-hidden="true">{t.done ? "✓" : ""}</span>{t.done ? "Lista" : "Marcar como lista"}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+      <p className="hint center">"Lista" es solo para su control en casa. La docente ve quién vio la tarea, no quién la marcó.</p>
+    </>
+  );
+}
+
+function DocTareas({ ctx }) {
+  const now = useNow(ctx.state.clock, 2000);
+  const list = ctx.state.tareas.filter((t) => t.publishedAt <= now);
+  return (
+    <>
+      <Head title={DOCENTE.name} sub="4to grado A · Colegio Demo" />
+      <h1>Tareas</h1>
+      {dueGroups(list, now).map(([g, l]) => (
+        <section key={g}>
+          <h2>{g}</h2>
+          <ul className="cards">
+            {l.map((t) => {
+              const st = readStats(t, now);
+              return (
+                <li key={t.id} className="tarea">
+                  <span className="meta"><span className="mat">{t.materia}</span>{dueText(t, now)} · publicada {cuando(t.publishedAt, now)}</span>
+                  <span className="card-t">{t.title}</span>
+                  {t.traer && <span className="traer-l">Traer: {t.traer}</span>}
+                  <Bar {...st} />
+                  <span className="count"><b>{st.read} de {st.total}</b> familias la vieron</span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
+      <div className="dock"><button type="button" className="btn" onClick={() => ctx.push({ name: "tareaNueva" })}>Nueva tarea</button></div>
+    </>
+  );
+}
+
+function TareaNueva({ ctx }) {
+  const now = useNow(ctx.state.clock, 30000);
+  const today = dayKey(now);
+  const d1 = schoolDayFrom(now, isSchoolDayKey(today) ? 1 : 0), d2 = schoolDayFrom(keyToTs(d1), 1);
+  const [materia, setMateria] = useState("Ciencias");
+  const [title, setTitle] = useState("");
+  const [detail, setDetail] = useState("");
+  const [due, setDue] = useState(d1);
+  const [otra, setOtra] = useState(false);
+  const [traerOn, setTraerOn] = useState(false);
+  const [traer, setTraer] = useState("");
+  const ok = title.trim() && due;
+  const Chip = ({ on, onClick, children }) => <button type="button" className={"chip" + (on ? " on" : "")} aria-pressed={on} onClick={onClick}>{children}</button>;
+  const cap = (x) => x.replace(/^./, (c) => c.toUpperCase());
+  const submit = (e) => {
+    e.preventDefault(); if (!ok) return;
+    ctx.postTarea({ materia, title: title.trim(), detail: detail.trim(), due, traer: traerOn ? traer.trim() : "" });
+    ctx.back(); ctx.say("Tarea publicada para las familias de 4to grado A");
+  };
+  return (
+    <form onSubmit={submit} className="compose">
+      <Back onClick={ctx.back}>Cancelar</Back>
+      <h1>Nueva tarea</h1>
+      <fieldset><legend>Materia</legend><div className="chips">{MATERIAS.map((m) => <Chip key={m} on={materia === m} onClick={() => setMateria(m)}>{m}</Chip>)}</div></fieldset>
+      <label className="field"><span>Tarea</span><input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Por ejemplo: Ejercicios de la página 42" maxLength={80} /></label>
+      <label className="field"><span>Detalle (opcional)</span><textarea rows={3} value={detail} onChange={(e) => setDetail(e.target.value)} placeholder="Lo que la familia necesita saber para ayudar en casa." /></label>
+      {!title && <button type="button" className="link ink" onClick={() => { setMateria("Ciencias"); setTitle("Traer un vaso de plástico"); setDetail("Para el experimento del viernes. Puede ser reciclado."); setTraerOn(true); setTraer("Un vaso de plástico"); }}>Usar un ejemplo</button>}
+      <fieldset><legend>Para cuándo</legend><div className="chips">
+        <Chip on={!otra && due === d1} onClick={() => { setOtra(false); setDue(d1); }}>{cap(dayLabel(d1, now))}</Chip>
+        <Chip on={!otra && due === d2} onClick={() => { setOtra(false); setDue(d2); }}>{cap(dayLabel(d2, now))}</Chip>
+        <Chip on={otra} onClick={() => { setOtra(true); setDue(""); }}>Otra fecha</Chip>
+      </div>
+      {otra && <label className="field" style={{ marginTop: 10 }}><span>Fecha</span><input type="date" min={today} value={due} onChange={(e) => setDue(e.target.value)} /></label>}
+      </fieldset>
+      <label className="toggle"><input type="checkbox" checked={traerOn} onChange={(e) => setTraerOn(e.target.checked)} /> Hay que traer algo</label>
+      {traerOn && <label className="field"><span>Qué hay que traer</span><input value={traer} onChange={(e) => setTraer(e.target.value)} placeholder="Por ejemplo: una hoja de árbol" maxLength={60} /></label>}
+      <p className="hint">Lo que hay que traer aparece arriba en la vista de las familias, para que no dependa de la agenda en el morral.</p>
+      <div className="dock"><button type="submit" className="btn" disabled={!ok}>Publicar para 24 familias</button></div>
+    </form>
   );
 }

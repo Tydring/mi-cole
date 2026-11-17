@@ -65,7 +65,8 @@ export function seed() {
     return { id, title, body, audience, publishedAt, speed: 90, reads: { [DEMO_REP]: publishedAt + 2.6 * H } };
   };
   return {
-    v: 4,
+    v: 5,
+    tareas: seedTareas(),
     momentos: seedMomentos(),
     close: DEFAULT_CLOSE,
     avisos: seedAvisos(),
@@ -164,7 +165,7 @@ export function seedMensajes() {
       m(a, "doc", atDay(y2, 15, 5), "Sí, la enviamos en la carpeta. Debe volver firmada antes del jueves."),
       m(b, "rep", atDay(y, 20, 15), "Buenas noches, profesora. ¿Hasta cuándo hay plazo para entregar el proyecto de Ciencias?"),
     ],
-    seen: { "momentos:rep": Date.now(), [DEMO_REP + ":rep"]: atDay(y, 11, 0), [DEMO_REP + ":doc"]: atDay(y, 11, 0), [a + ":doc"]: atDay(y2, 16, 0) },
+    seen: { "momentos:rep": Date.now(), "tareas:rep": Date.now(), [DEMO_REP + ":rep"]: atDay(y, 11, 0), [DEMO_REP + ":doc"]: atDay(y, 11, 0), [a + ":doc"]: atDay(y2, 16, 0) },
   };
 }
 
@@ -234,3 +235,18 @@ export function seedMomentos() {
 }
 // students in 4to A without photo permission (invented), for the consent reminder
 export const SIN_PERMISO = () => REPS.filter((r) => r.seccion === "4A" && r.id !== DEMO_REP).slice(0, 24).filter((_, i) => i === 3 || i === 13).map((r) => r.child);
+
+/* ---------- tareas ---------- */
+export const MATERIAS = ["Matemáticas", "Lengua", "Ciencias", "Sociales", "Inglés", "Arte"];
+export function seedTareas() {
+  const now = Date.now();
+  const y = prevSchoolDay(1);
+  const today = dayKey(now);
+  const t = (id, materia, title, detail, traer, due, pubDay, h, m, done) => ({ id, materia, title, detail, traer, due, publishedAt: atDay(pubDay, h, m), audience: "4A", speed: 60, reads: { [DEMO_REP]: atDay(pubDay, h + 3, 10) }, done });
+  const y2 = new Date(y); y2.setDate(y2.getDate() - 2); while (!isSchoolDay(y2)) y2.setDate(y2.getDate() - 1);
+  return [
+    t("t1", "Ciencias", "Traer una hoja de árbol", "Para la clase de clasificación. Mientras más rara la forma, mejor.", "Una hoja de árbol", schoolDayFrom(now, isSchoolDayKey(today) ? 1 : 0), y, 13, 0, false),
+    t("t2", "Matemáticas", "Ejercicios de fracciones", "Página 42, ejercicios 1 al 6. Pueden usar la regla de fracciones que hicimos en clase.", "", schoolDayFrom(now, isSchoolDayKey(today) ? 2 : 1), y, 13, 5, false),
+    t("t3", "Lengua", "Leer el capítulo 3", "Y escribir en el cuaderno una oración sobre el personaje que más les gustó.", "", dayKey(y.getTime()), y2, 12, 40, true),
+  ];
+}

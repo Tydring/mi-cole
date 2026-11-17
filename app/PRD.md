@@ -32,7 +32,7 @@ It is not the product. Nothing a director types leaves their phone.
 | 2 | Messages with office hours (done) | Representante, Docente, Dirección |
 | 3 | Asistencia + avisos de inasistencia: the representante notifies absence, lateness or early pickup; coordinación receives it, can ask for a justificativo and mark it justified; the teacher sees it pre-filled when taking attendance; the representante sees today's status (done) | all three |
 | 4 | Momentos del día + gallery per grade: the teacher posts text and up to 4 photos (compressed), with a reminder of which students have no photo permission; families see the feed, react with "Me gusta", and browse the gallery; seed pictures are labeled illustrations, never real children (done) | Docente, Representante |
-| 5 | Tareas: what to bring and for when | Docente, Representante |
+| 5 | Tareas: the teacher posts homework by subject with a due day and anything to bring; families see a "Hay que traer" box on top and can mark tasks "Lista" for themselves; the teacher sees how many families saw each task (done) | Docente, Representante |
 
 Order changed 2026-11-17 after the brainstorm in `IDEAS.md`: messaging moved up. Later the same day, avisos de inasistencia were added (parents notify coordinación by email today) and joined asistencia as slice 3. Coordinación is an "Avisos" tab inside Dirección; the aviso reaches coordinación and the teacher; the justificativo is optional and coordinación can ask for it.
 
