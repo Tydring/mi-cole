@@ -7,7 +7,7 @@ Visual reference: `explore/synthesis.html` (the combined direction). Decisions t
 - **Name:** miCole ("Mi Colegio").
 - **Sells:** a school communication platform for Venezuelan schools, not built yet. The page sells a conversation, not a product.
 - **For:** directors of private schools in Caracas first; teachers and representantes second.
-- **Main action:** "Agenda una conversación", opening WhatsApp with a prefilled message to +58 424 279 9280. Email as the second channel: churtado96@gmail.com (mailto link).
+- **Main action (changed 2026-11-17):** "Escríbame por WhatsApp" (prefilled message to +58 424 279 9280) with "o por correo" beside it (churtado96@gmail.com). Usted form. The nav button says "Escríbame".
 - **Contact and location:** WhatsApp above; Caracas, Venezuela. No street address.
 - **Offers and prices:** none on the page. The business model is undecided.
 - **Language:** Venezuelan Spanish, **usted** with the reader. Warm and direct, no corporate filler, no em dashes.
@@ -68,7 +68,6 @@ Guayaba (#D4614A) is not used on this page. Status colors for the app (present, 
 2. **The problem, as a letter:** one large paragraph on how school communication is scattered, which makes it hard for teachers, parents and directors to feel part of the same thing:
    - circulares in an email few people open
    - homework on another platform with another account and password
-   - everything else in WhatsApp groups on the teacher's personal number
    - nobody knows who read what
    - a question about a circular turns into an email chain and a meeting It ends in bold: "un lugar del colegio, no del teléfono de alguien. Un lugar donde el colegio sea una comunidad."
 3. **A school day (the signature):** "Un día de colegio, contado a la casa."
@@ -100,6 +99,7 @@ The main action appears three times: nav, hero and closing.
 
 ## CLAIM BOUNDARY (what the page may promise)
 Everything about the product is in future tense, from the founder's point of view.
+- **Positioning:** the goal is that nobody ever has to use WhatsApp for school. The page never describes WhatsApp groups as how schools work today.
 - **Committed** (from the brief's own facts):
   - Teachers will post classroom updates and take attendance from their phone.
   - Representantes will follow their child.
