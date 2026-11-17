@@ -7,7 +7,7 @@ Visual reference: `explore/synthesis.html` (the combined direction). Decisions t
 - **Name:** miCole ("Mi Colegio").
 - **Sells:** a school communication platform for Venezuelan schools, not built yet. The page sells a conversation, not a product.
 - **For:** directors of private schools in Caracas first; teachers and representantes second.
-- **Main action:** "Agenda una conversación", opening WhatsApp with a prefilled message to +58 424 279 9280. Email as the second channel: **[CORREO PENDIENTE]**.
+- **Main action:** "Agenda una conversación", opening WhatsApp with a prefilled message to +58 424 279 9280. Email as the second channel: churtado96@gmail.com (mailto link).
 - **Contact and location:** WhatsApp above; Caracas, Venezuela. No street address.
 - **Offers and prices:** none on the page. The business model is undecided.
 - **Language:** Venezuelan Spanish, **usted** with the reader. Warm and direct, no corporate filler, no em dashes.
@@ -125,11 +125,11 @@ Everything about the product is in future tense, from the founder's point of vie
 - **Nothing goes online** without an explicit "proceed".
 
 ## PLACEHOLDERS SO FAR
-1. **[CORREO PENDIENTE]:** the email for the second contact channel.
+1. ~~[CORREO PENDIENTE]~~ Done: churtado96@gmail.com.
 2. ~~[FOTO DE CHRISTIAN]~~ Done.
 3. ~~[FRASE PERSONAL]~~ Done, from Christian's own words, translated. Confirm the Spanish wording.
 
 ## OPEN QUESTIONS
-- Is "docente de sexto grado en un colegio de Caracas" fine to say publicly, without naming the school? It is the default.
+- ~~School name~~ Settled: say "docente de sexto grado en un colegio de Caracas", never name the school.
 - The main button opens a WhatsApp chat, while its label says "Agenda" (scheduling). The judge flagged the mismatch. It is kept because it was your label; say if you prefer "Escríbame por WhatsApp".
 - Domain and hosting are decided at the end (options will be laid out then).
