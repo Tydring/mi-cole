@@ -20,7 +20,7 @@
     if (!intro || !root.classList.contains("intro")) return;
     rememberIntro();
     intro.classList.add("out");
-    setTimeout(function () { root.classList.remove("intro"); }, 520);
+    setTimeout(function () { root.classList.remove("intro"); }, 650);
   }
   if (intro && root.classList.contains("intro")) {
     try { runIntro(); } catch (e) { finishIntro(); }
@@ -39,9 +39,6 @@
     $("place").setAttribute("transform", "translate(" + LX + " " + LY + ") scale(" + S + ")");
     var bx = D.btn[0], by = D.btn[1], ex = D.edge[0], ey = D.edge[1];
     var cb = $("C").getBBox(), ccx = cb.x + cb.width / 2, ccy = cb.y + cb.height / 2, cr = Math.max(cb.width, cb.height) * 0.36;
-    var a0 = -6 * Math.PI / 180, a1 = 6 * Math.PI / 180;
-    $("csweep").setAttribute("d", "M" + (ccx + cr * Math.cos(a0)) + " " + (ccy + cr * Math.sin(a0)) + "A" + cr + " " + cr + " 0 1 0 " + (ccx + cr * Math.cos(a1)) + " " + (ccy + cr * Math.sin(a1)));
-    $("csweep").setAttribute("stroke-width", cb.width * 0.62);
     var wb = $("place").getBBox();
     var markC = [ccx, (cb.y + by) / 2], wordC = [wb.x + wb.width / 2, wb.y + wb.height / 2];
     var letters = { m: 4.0, i: 4.08, o: 4.2, l: 4.28, e: 4.36 };
@@ -63,9 +60,11 @@
       var sw = t < 3.0 ? -8 * grow : Math.exp(-2.6 * k) * (30 * Math.sin(8.2 * k) - 8 * Math.cos(8.2 * k));
       $("tassel").setAttribute("transform", "rotate(" + sw + " " + ex + " " + ey + ") translate(" + ex + " " + ey + ") scale(1 " + Math.max(grow, 0.0001) + ") translate(" + (-ex) + " " + (-ey) + ")");
       $("tassel").style.opacity = grow > 0 ? 1 : 0;
-      $("csweep").style.strokeDashoffset = 1 - io(seg(t, 2.2, 3.0));
-      $("Cg").style.opacity = t < 2.2 ? 0 : 1;
-      if (t >= 3.0) $("Cg").removeAttribute("mask"); else $("Cg").setAttribute("mask", "url(#ik-cmask)");
+      // the C fades in and settles as the cap falls onto it (a mask sweep left a loose sliver)
+      var cp = io(seg(t, 2.2, 2.85)), cs = 0.9 + 0.1 * cp;
+      $("Cg").removeAttribute("mask");
+      $("Cg").style.opacity = cp;
+      $("Cg").setAttribute("transform", "translate(" + ccx + " " + ccy + ") scale(" + cs + ") translate(" + (-ccx) + " " + (-ccy) + ")");
       for (var id in letters) { var p = out(seg(t, letters[id], letters[id] + 0.45)); $(id).style.opacity = clamp(p * 2.2); $(id).setAttribute("transform", "translate(0 " + 32 * (1 - p) + ")"); }
       var f, z, b0 = [bx, by + drop], m0 = [markC[0], markC[1] + drop * 0.35];
       if (t < 1.8) { f = [bx, by + dy]; z = lerp(2.9, 2.6, seg(t, 0, 1.8)); }
@@ -90,37 +89,26 @@
     setTimeout(stop, 7000); // never keep anyone behind the intro
   }
 
-  /* ---------- 2. the thread along the school day (the page's one moment) ---------- */
+  /* ---------- 2. the thread along the school day (the page's one moment) ----------
+     Each stop owns the segment from its dot down to the next dot. Without JavaScript every
+     segment is full and every dot is lit. With it, they start empty and fill as you scroll. */
   var track = document.querySelector(".track");
-  var line = document.querySelector(".thread .on");
-  if (track && line && !reduce && "IntersectionObserver" in window) {
-    root.classList.add("js-thread");
+  if (track && !reduce && "IntersectionObserver" in window) {
     var stops = [].slice.call(track.querySelectorAll(".stop"));
-    var lit = 0;
-    function place() {
-      // how far down the rail each lit stop's dot sits, as a share of the rail
-      var rail = track.querySelector(".thread").getBoundingClientRect();
-      var target = 0;
-      if (lit > 0) {
-        var dot = stops[lit - 1].getBoundingClientRect().top + 20 - rail.top;
-        target = clamp(dot / rail.height);
-        if (lit === stops.length) target = 1;
-      }
-      line.style.strokeDashoffset = String(1 - target);
-    }
-    line.style.strokeDashoffset = "1";
+    root.classList.add("js-thread");
+    stops.forEach(function (s) { s.classList.remove("lit"); s.style.setProperty("--fill", "0"); });
     var obs = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (!en.isIntersecting) return;
         var i = stops.indexOf(en.target);
-        for (var j = 0; j <= i; j++) stops[j].classList.add("lit");
-        lit = Math.max(lit, i + 1);
-        place();
+        for (var j = 0; j <= i; j++) {
+          stops[j].classList.add("lit");
+          if (j > 0) stops[j - 1].style.setProperty("--fill", "1");
+        }
         obs.unobserve(en.target);
       });
     }, { rootMargin: "0px 0px -35% 0px" });
     stops.forEach(function (s) { obs.observe(s); });
-    addEventListener("resize", place);
   }
 
   /* ---------- 3. gentle one-time reveal of sections ---------- */
