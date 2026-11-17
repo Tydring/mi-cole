@@ -15,7 +15,7 @@ svg{position:absolute;left:0;top:0}
 #cta .pill{display:inline-block;background:var(--mango);color:var(--ink);border-radius:999px;padding:16px 40px;font-size:50px;margin-top:26px}
 </style></head><body>
 <div id="frame"><div id="stage">
-<svg width="1080" height="1920" viewBox="0 0 1080 1920">
+<svg id="sv" width="1080" height="1920" viewBox="0 0 1080 1920">
  <defs><mask id="cmask" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="5000" height="5000">
    <path id="csweep" fill="none" stroke="#fff" pathLength="1" stroke-dasharray="1 1"/></mask></defs>
  <g id="place">
@@ -36,6 +36,15 @@ svg{position:absolute;left:0;top:0}
 </div></div>
 <script>
 const D={"vb": [-3.9, -213.4, 652.6, 228.4], "btn": [259.11, -174.71], "edge": [334.99, -201.94]};
+// frame layouts: ?r=9x16 (default), 16x9, 1x1
+const LAYOUTS={"9x16":{W:1080,H:1920,lw:860,cy:880,cy0:960,top:1110,tf:66,cf:60},
+               "16x9":{W:1920,H:1080,lw:820,cy:400,cy0:540,top:610,tf:58,cf:54},
+               "1x1":{W:1080,H:1080,lw:760,cy:400,cy0:540,top:595,tf:56,cf:52}};
+const LY_=LAYOUTS[new URLSearchParams(location.search).get("r")||"9x16"];
+for(const id of ["frame","stage"]){const e=document.getElementById(id);e.style.width=LY_.W+"px";e.style.height=LY_.H+"px";}
+document.getElementById("sv").setAttribute("width",LY_.W);document.getElementById("sv").setAttribute("height",LY_.H);
+document.getElementById("sv").setAttribute("viewBox",`0 0 ${LY_.W} ${LY_.H}`);
+for(const id of ["tag","cta"]){const e=document.getElementById(id);e.style.width=LY_.W+"px";e.style.top=LY_.top+"px";e.style.fontSize=(id=="tag"?LY_.tf:LY_.cf)+"px";}
 const $=id=>document.getElementById(id);
 const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
 const seg=(t,a,b)=>clamp((t-a)/(b-a));
@@ -45,7 +54,7 @@ const inq=x=>x*x;                                       // ease in (gravity)
 const back=x=>{const c=1.6;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)}; // gentle overshoot
 const lerp=(a,b,k)=>a+(b-a)*k;
 // place the wordmark: 860 px wide, centered at (540, 900)
-const [vx,vy,vw,vh]=D.vb, S=860/vw, LX=540-S*(vx+vw/2), LY=880-S*(vy+vh/2);
+const [vx,vy,vw,vh]=D.vb, S=LY_.lw/vw, LX=LY_.W/2-S*(vx+vw/2), LY=LY_.cy-S*(vy+vh/2);
 $("place").setAttribute("transform",`translate(${LX} ${LY}) scale(${S})`);
 const L=(x,y)=>[LX+S*x,LY+S*y];
 const [bx,by]=D.btn, [ex,ey]=D.edge;
@@ -97,8 +106,8 @@ function render(t){
   else if(t<3.4){ const k2=io(seg(t,2.0,3.0)); f=[lerp(btnNow[0],markC[0],k2), lerp(btnNow[1],markC[1],k2)]; z=lerp(2.6,2.2,seg(t,2.0,3.4)); }
   else { const k3=io(seg(t,3.4,4.6)); f=[lerp(markC[0],wordC[0],k3), lerp(markC[1],wordC[1],k3)]; z=lerp(2.2,1.0,k3)+0.05*seg(t,4.6,8.0); }
   const [fx,fy]=L(...f);
-  const ty = t<3.4? 960 : lerp(960,880,io(seg(t,3.4,4.6)));   // vertical centre of interest
-  $("stage").style.transform=`translate(540px,${ty}px) scale(${z}) translate(${-fx}px,${-fy}px)`;
+  const ty = t<3.4? LY_.cy0 : lerp(LY_.cy0,LY_.cy,io(seg(t,3.4,4.6)));   // vertical centre of interest
+  $("stage").style.transform=`translate(${LY_.W/2}px,${ty}px) scale(${z}) translate(${-fx}px,${-fy}px)`;
   // after the pull-back, keep the text block in frame: text lives in stage coords below the word
 }
 window.render=render; render(0);
