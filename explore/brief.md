@@ -30,12 +30,16 @@ Visual reference: `explore/synthesis.html` (the combined direction). Decisions t
 
 **The idea.** A single mango thread, the cord of the logo's tassel, carries a school day from the aula to the casa, told as a calm letter to a director.
 
-**Fonts.**
-- **Bricolage Grotesque 700:** headings only. Self-hosted as one Latin subset WOFF2 of about 20 KB, with `font-display: swap`.
-  - Hero at clamp(50px, 9.2vw, 132px), line-height 0.95.
-  - Section titles at clamp(34px, 5vw, 64px).
-  - Tracking -0.02em, sentence case.
-- **Body:** the phone's own system font (system-ui), 18px on desktop and 17px on phones, line-height 1.6. Zero download.
+**Fonts (revised 2026-11-17 after Christian's note on inconsistency).** One typeface for everything: **Bricolage Grotesque**, two weights, self-hosted as Latin-subset WOFF2 with `font-display: swap`. Regular 400 is for text and Bold 700 is for headings, about 21 KB each (41 KB total, which counts as the two font files allowed).
+Six sizes only:
+- **Small:** 14px, for captions, labels and small print.
+- **Body:** 18px (17 on phones).
+- **Lead:** 24px (21 on phones), for the letter, the quote and card titles.
+- **XL:** 40px (34 on phones), for timeline hours and list numbers.
+- **H2:** clamp(34px, 5vw, 60px).
+- **H1:** clamp(48px, 9vw, 128px).
+
+Headings use -0.02em tracking. Everything is sentence case: no uppercase spaced labels. Labels are small bold text with a mango dot.
 
 **Colors.**
 | Name | Hex | Job |
@@ -61,14 +65,18 @@ Guayaba (#D4614A) is not used on this page. Status colors for the app (present, 
    - A margin note in Tiza with a Mango rule: "Para directores de colegios en Caracas...".
    - The main button, plus a status line: a Mango dot and "miCole está en construcción".
    - No phone and no image, so the first screen is just type and paints instantly.
-2. **The problem, as a letter:** one large paragraph about WhatsApp groups, the teacher's personal number, messages at any hour, and circulares that may have stayed in the morral. It ends in bold: "un lugar del colegio, no del teléfono de alguien."
+2. **The problem, as a letter:** one large paragraph about WhatsApp groups, the teacher's personal number, messages at any hour, and circulares that may have stayed in the morral, which makes it hard for teachers, parents and directors to feel part of the same thing. It ends in bold: "un lugar del colegio, no del teléfono de alguien. Un lugar donde el colegio sea una comunidad."
 3. **A school day (the signature):** "Un día de colegio, contado a la casa."
    - Four stops on the thread: 7:15 asistencia, 9:30 lo que pasó en clase, 11:00 circular, 13:00 tarea.
    - Each stop has a small drawn phone showing one card.
    - Each phone is captioned "Ilustración del concepto" outside the frame, and the section ends with "Día de ejemplo".
    - The thread grows down this section.
 4. **Built for here:** four numbered commitments, then a dashed box headed "Lo que estamos explorando" (see the claim boundary below).
-5. **Who is behind it:** Christian's photo, a short first-person quote and signature: "Christian Corrie, Fundador de miCole". Default position: just before the closing (switchable to right after the hero).
+5. **Who is behind it:**
+   - **Photo:** Christian's, `explore/assets/christian.webp` (34 KB) with a JPEG fallback. Cropped to head and shoulders, which also keeps out third-party stickers.
+   - **Quote:** his origin story in first person: "miCole nace de una necesidad: acercar a docentes, representantes y directivos, que se involucren más con el colegio y que adentro se forme una comunidad de verdad."
+   - **Signature:** "Christian Corrie, Fundador de miCole".
+   - **Position:** default is just before the closing, switchable to right after the hero.
 6. **Closing:** "¿Lo conversamos?" on Pizarra noche (switchable to Papel).
    - Honest line: "Estoy conversando con directores para construirla..."
    - Button: WhatsApp, with the prefilled message.
@@ -94,6 +102,7 @@ Everything about the product is in future tense, from the founder's point of vie
   - It will be built around lapsos, boletines, 1 to 20 grading and secciones, for mid-range Android phones.
   - "Se podrá publicar sin conexión; se enviará cuando vuelva el internet."
 - **"Lo que estamos explorando"** (shown as ideas, never as features):
+  - automatic posts to the school's own Instagram of whatever the school chooses to share, with the families' permission, so teachers and directors do not do the work twice
   - QR sign-up for representantes
   - knowing which representantes saw a circular
   - each school choosing whether it uses grades and attendance
@@ -108,7 +117,7 @@ Everything about the product is in future tense, from the founder's point of vie
 
 ## BUILD
 - **Files:** one long page in plain files: `index.html`, `style.css`, `script.js`. No framework, no build step.
-- **Weight:** under 500 KB in total without photos. Expected: about 40 KB of HTML, CSS and JS, about 20 KB of font, about 30 KB of logo and favicon. Christian's photo will be compressed to under 80 KB as WebP at 2x for a 260px slot, with a JPEG fallback.
+- **Weight:** under 500 KB in total without photos. Expected: about 40 KB of HTML, CSS and JS, about 41 KB of font, about 30 KB of logo and favicon. Christian's photo is 34 KB as WebP at 2x for a 260px slot, with a JPEG fallback.
 - **Readable before any script runs:** all content is in the HTML and nothing is hidden waiting for JavaScript. The script only adds the thread animation.
 - **Real copy:** no invented facts. Every missing fact is a marked placeholder, listed at the end.
 - **Meta and sharing:** title, description, share image (built from the logo and headline), favicon set and theme color.
@@ -117,8 +126,8 @@ Everything about the product is in future tense, from the founder's point of vie
 
 ## PLACEHOLDERS SO FAR
 1. **[CORREO PENDIENTE]:** the email for the second contact channel.
-2. **[FOTO DE CHRISTIAN]:** a portrait, ideally in natural light, shoulders up, about 4:5.
-3. **[FRASE PERSONAL]:** one or two sentences, in your words, on why you started miCole. (I won't write this for you; it has to be yours.)
+2. ~~[FOTO DE CHRISTIAN]~~ Done.
+3. ~~[FRASE PERSONAL]~~ Done, from Christian's own words, translated. Confirm the Spanish wording.
 
 ## OPEN QUESTIONS
 - Is "docente de sexto grado en un colegio de Caracas" fine to say publicly, without naming the school? It is the default.
