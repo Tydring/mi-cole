@@ -1,0 +1,15 @@
+{
+  "name": "miCole Demo",
+  "short_name": "miCole",
+  "description": "Demo de miCole con datos de ejemplo.",
+  "lang": "es",
+  "start_url": "/demo/",
+  "scope": "/demo/",
+  "display": "standalone",
+  "background_color": "#F5EFE3",
+  "theme_color": "#10282B",
+  "icons": [
+    { "src": "/demo/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/demo/icons/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
