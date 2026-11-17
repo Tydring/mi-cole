@@ -65,7 +65,8 @@ export function seed() {
     return { id, title, body, audience, publishedAt, speed: 90, reads: { [DEMO_REP]: publishedAt + 2.6 * H } };
   };
   return {
-    v: 3,
+    v: 4,
+    momentos: seedMomentos(),
     close: DEFAULT_CLOSE,
     avisos: seedAvisos(),
     asistencia: {},
@@ -163,7 +164,7 @@ export function seedMensajes() {
       m(a, "doc", atDay(y2, 15, 5), "Sí, la enviamos en la carpeta. Debe volver firmada antes del jueves."),
       m(b, "rep", atDay(y, 20, 15), "Buenas noches, profesora. ¿Hasta cuándo hay plazo para entregar el proyecto de Ciencias?"),
     ],
-    seen: { [DEMO_REP + ":rep"]: atDay(y, 11, 0), [DEMO_REP + ":doc"]: atDay(y, 11, 0), [a + ":doc"]: atDay(y2, 16, 0) },
+    seen: { "momentos:rep": Date.now(), [DEMO_REP + ":rep"]: atDay(y, 11, 0), [DEMO_REP + ":doc"]: atDay(y, 11, 0), [a + ":doc"]: atDay(y2, 16, 0) },
   };
 }
 
@@ -210,3 +211,26 @@ export function seedAvisos() {
     a("a4", DEMO_REP, "ausente", dayKey(last.getTime()), "Enfermedad", "Gripe.", at(last, 6, 30), "justificada", at(last, 7, 5), true),
   ];
 }
+
+/* ---------- momentos del día + galería ----------
+   Seed pictures are flat illustrations (no children, no real photos), always labeled "Ilustración". */
+const svgUrl = (body) => "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">${body}</svg>`);
+export const ILUS = {
+  caraotas: svgUrl(`<rect width="400" height="300" fill="#F5EFE3"/><rect y="215" width="400" height="85" fill="#d9c7a4"/>${[70, 170, 270].map((x, i) => `<path d="M${x} 150h60l-8 75h-44z" fill="${["#E59A2F", "#A9C2B4", "#E59A2F"][i]}"/><rect x="${x - 4}" y="142" width="68" height="12" rx="4" fill="#17363A"/><path d="M${x + 30} 142c0-30 ${i - 1} -45 0-${55 + i * 12}" stroke="#4f7a52" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="${x + 18}" cy="${100 - i * 8}" rx="16" ry="8" fill="#6b9a5e" transform="rotate(-30 ${x + 18} ${100 - i * 8})"/><ellipse cx="${x + 44}" cy="${92 - i * 10}" rx="16" ry="8" fill="#6b9a5e" transform="rotate(30 ${x + 44} ${92 - i * 10})"/>`).join("")}`),
+  lectura: svgUrl(`<rect width="400" height="300" fill="#FBF8F2"/><path d="M200 80c-40-22-95-24-135-10v160c40-14 95-12 135 10z" fill="#fff" stroke="#17363A" stroke-width="5"/><path d="M200 80c40-22 95-24 135-10v160c-40-14-95-12-135 10z" fill="#fff" stroke="#17363A" stroke-width="5"/><path d="M200 80v160" stroke="#17363A" stroke-width="5"/>${[110, 135, 160, 185].map((y) => `<path d="M90 ${y}h85M225 ${y}h85" stroke="#A9C2B4" stroke-width="6" stroke-linecap="round"/>`).join("")}<circle cx="320" cy="60" r="18" fill="#E59A2F"/>`),
+  avila: svgUrl(`<rect width="400" height="300" fill="#e8eef0"/><rect x="40" y="40" width="320" height="220" rx="6" fill="#fff" stroke="#17363A" stroke-width="5"/><circle cx="290" cy="95" r="26" fill="#E59A2F"/><path d="M45 225 120 130l40 40 55-75 70 90 30-30 55 70z" fill="#4f7a52"/><path d="M45 255v-30l80-25 90 20 80-15 70 20v30z" fill="#A9C2B4"/><path d="M95 95q20-15 40 0M150 75q15-10 30 0" stroke="#17363A" stroke-width="4" fill="none" stroke-linecap="round"/>`),
+  hojas: svgUrl(`<rect width="400" height="300" fill="#F5EFE3"/>${[[90, 110, "#6b9a5e", -20], [200, 90, "#E59A2F", 10], [310, 120, "#A9C2B4", 25], [140, 210, "#B5701A", -35], [260, 215, "#4f7a52", 15]].map(([x, y, c, r]) => `<g transform="rotate(${r} ${x} ${y})"><path d="M${x} ${y - 55}c40 25 40 85 0 110c-40-25-40-85 0-110z" fill="${c}"/><path d="M${x} ${y - 50}v110" stroke="#17363A" stroke-width="3"/></g>`).join("")}`),
+};
+export function seedMomentos() {
+  const d1 = prevSchoolDay(1);
+  const d2 = new Date(d1); d2.setDate(d2.getDate() - 1); while (!isSchoolDay(d2)) d2.setDate(d2.getDate() - 1);
+  const d3 = new Date(d2); d3.setDate(d3.getDate() - 1); while (!isSchoolDay(d3)) d3.setDate(d3.getDate() - 1);
+  const m = (id, d, h, mi, text, imgs, likes) => ({ id, at: atDay(d, h, mi), text, imgs, illus: true, likeBase: likes, liked: false });
+  return [
+    m("p1", d1, 9, 30, "Hoy sembramos caraotas en vasitos. Cada uno se lleva el suyo el viernes para medir en casa cuánto creció.", [ILUS.caraotas], 14),
+    m("p2", d2, 11, 10, "Terminamos la lectura del lapso. Cada estudiante leyó en voz alta su parte favorita y conversamos sobre el final.", [ILUS.lectura], 9),
+    m("p3", d3, 10, 0, "En Ciencias clasificamos hojas por su forma y su borde. ¡Gracias a las familias que ayudaron a recogerlas!", [ILUS.hojas, ILUS.avila], 17),
+  ];
+}
+// students in 4to A without photo permission (invented), for the consent reminder
+export const SIN_PERMISO = () => REPS.filter((r) => r.seccion === "4A" && r.id !== DEMO_REP).slice(0, 24).filter((_, i) => i === 3 || i === 13).map((r) => r.child);

@@ -71,5 +71,5 @@ Today parents email coordinación when a child will miss school, because it is i
 1. Circulares + who read it (done)
 2. Messages with office hours (done)
 3. Asistencia + avisos de inasistencia (done)
-4. Momentos + gallery
+4. Momentos + gallery (done)
 5. Tareas

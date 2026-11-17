@@ -3,7 +3,7 @@ import { useDemo, useNow, demoNow } from "./store.js";
 import {
   SECCIONES, TOTAL, DEMO_REP, DEMO_CHILD, EJEMPLO, DOCENTE, CLOSE_OPTIONS,
   repsFor, repById, readAt, readStats, cuando, hora, horaMin, audienceLabel, seccionById, isOpen, deliverAt, cuandoLlega,
-  TIPOS, MOTIVOS, ESTADOS, dayKey, keyToTs, schoolDayFrom, isSchoolDayKey, dayLabel,
+  ILUS, SIN_PERMISO, TIPOS, MOTIVOS, ESTADOS, dayKey, keyToTs, schoolDayFrom, isSchoolDayKey, dayLabel,
 } from "./data.js";
 
 const ROLES = [
@@ -13,8 +13,8 @@ const ROLES = [
 ];
 const TABS = {
   direccion: [{ id: "circulares", label: "Circulares" }, { id: "avisos", label: "Avisos" }, { id: "mensajes", label: "Mensajes" }],
-  docente: [{ id: "asistencia", label: "Asistencia" }, { id: "mensajes", label: "Mensajes" }],
-  representante: [{ id: "circulares", label: "Circulares" }, { id: "asistencia", label: "Asistencia" }, { id: "mensajes", label: "Mensajes" }],
+  docente: [{ id: "asistencia", label: "Asistencia" }, { id: "momentos", label: "Momentos" }, { id: "mensajes", label: "Mensajes" }],
+  representante: [{ id: "circulares", label: "Circulares" }, { id: "momentos", label: "Momentos" }, { id: "asistencia", label: "Asistencia" }, { id: "mensajes", label: "Mensajes" }],
 };
 const HOME = { direccion: "circulares", docente: "asistencia", representante: "circulares" };
 const CLOCKS = [
@@ -66,8 +66,9 @@ export default function App() {
   const docMsg = threads(state).reduce((a, t) => a + unreadMsgs(state, t, "doc", now), 0);
   const newAvisos = state.avisos.filter((a) => !a.seenAt && a.sentAt <= now).length;
   const askedJust = state.avisos.filter((a) => a.rep === DEMO_REP && a.estado === "pendiente").length;
-  const badges = { direccion: { avisos: newAvisos }, docente: { mensajes: docMsg }, representante: { circulares: repCirc, mensajes: repMsg, asistencia: askedJust } };
-  const pings = { direccion: newAvisos > 0, docente: docMsg > 0, representante: repCirc + repMsg + askedJust > 0 };
+  const repMom = state.momentos.filter((m) => m.at <= now && m.at > (state.seen["momentos:rep"] || 0)).length;
+  const badges = { direccion: { avisos: newAvisos }, docente: { mensajes: docMsg }, representante: { circulares: repCirc, momentos: repMom, mensajes: repMsg, asistencia: askedJust } };
+  const pings = { direccion: newAvisos > 0, docente: docMsg > 0, representante: repCirc + repMsg + askedJust + repMom > 0 };
 
   const reset = () => {
     if (!confirm("¿Reiniciar la demo? Se borra todo lo que se publicó y escribió, y vuelve al inicio.")) return;
@@ -85,6 +86,9 @@ export default function App() {
   const showTabs = atHome && TABS[role].length > 1;
   let view;
   if (screen.name === "chat") view = <Chat ctx={ctx} thread={screen.thread} side={screen.side} />;
+  else if (screen.name === "foto") view = <Foto ctx={ctx} id={screen.id} i={screen.i} />;
+  else if (screen.name === "momentoNuevo") view = <MomentoNuevo ctx={ctx} />;
+  else if (tab === "momentos" && atHome) view = <Momentos ctx={ctx} side={role === "docente" ? "doc" : "rep"} />;
   else if (role === "direccion") {
     if (screen.name === "compose") view = <DirCompose ctx={ctx} />;
     else if (screen.name === "circular") view = <DirCircular ctx={ctx} id={screen.id} />;
@@ -106,7 +110,7 @@ export default function App() {
         <nav className="tabbar" aria-label="Secciones">
           {TABS[role].map((t) => (
             <button key={t.id} type="button" className={tab === t.id ? "on" : ""} aria-current={tab === t.id ? "page" : undefined} onClick={() => setTab(t.id)}>
-              {t.id === "circulares" ? <IconDoc /> : t.id === "mensajes" ? <IconChat /> : <IconCheck />}
+              {t.id === "circulares" ? <IconDoc /> : t.id === "mensajes" ? <IconChat /> : t.id === "momentos" ? <IconImg /> : <IconCheck />}
               <span>{t.label}</span>
               {badges[role][t.id] > 0 && <b className="badge">{badges[role][t.id]}</b>}
             </button>
@@ -161,6 +165,8 @@ const IconChat = svg(<path d="M4 5h16v11H9l-5 4z" />);
 const IconClock = svg(<><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></>, 15);
 const IconCheck = svg(<><rect x="4" y="4" width="16" height="16" rx="3" /><path d="m8.5 12 2.5 2.5 4.5-5" /></>);
 const IconCam = svg(<><path d="M4 8h3l2-2.5h6L17 8h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></>, 20);
+const IconImg = svg(<><rect x="3.5" y="5" width="17" height="14" rx="2.5" /><circle cx="9" cy="10" r="1.8" /><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5" /></>);
+const IconHeart = svg(<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />, 20);
 const IconSend = svg(<path d="M4 12 20 4l-5 16-3-7z" />);
 
 function Head({ title, sub }) {
@@ -451,7 +457,7 @@ function DocMensajes({ ctx }) {
       <h1>Mensajes</h1>
       <HoursNote state={ctx.state} now={now} />
       <ThreadList ctx={ctx} side="doc" list={threads(ctx.state)} />
-      <p className="hint center">Momentos del día y tareas llegan en los próximos pasos de la demo.</p>
+      <p className="hint center">Las tareas llegan en el próximo paso de la demo.</p>
     </>
   );
 }
@@ -770,5 +776,124 @@ function DocAsistencia({ ctx }) {
         </>
       )}
     </>
+  );
+}
+
+/* ---------- momentos del día + galería ---------- */
+function Pics({ m, onOpen }) {
+  return (
+    <div className={"pics n" + Math.min(m.imgs.length, 3)}>
+      {m.imgs.slice(0, 3).map((src, i) => (
+        <button key={i} type="button" className="pic" onClick={() => onOpen(i)} aria-label={`Ver foto ${i + 1}`}>
+          <img src={src} alt="" loading="lazy" />
+          {m.illus && <span className="ilus">Ilustración</span>}
+          {i === 2 && m.imgs.length > 3 && <span className="more">+{m.imgs.length - 3}</span>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function Momentos({ ctx, side }) {
+  const now = useNow(ctx.state.clock, 30000);
+  const [view, setView] = useState("feed");
+  const list = ctx.state.momentos.filter((m) => m.at <= now).sort((a, b) => b.at - a.at);
+  useEffect(() => { if (side === "rep") ctx.markSeen("momentos", "rep"); }, [list.length]);
+  const photos = list.flatMap((m) => m.imgs.map((src, i) => ({ m, i, src })));
+  const head = side === "rep" ? <Head title={DEMO_CHILD} sub="4to grado A · Colegio Demo" /> : <Head title={DOCENTE.name} sub="4to grado A · Colegio Demo" />;
+  return (
+    <>
+      {head}
+      <h1>Momentos del día</h1>
+      <div className="seg2" role="tablist">
+        <button type="button" role="tab" aria-selected={view === "feed"} className={view === "feed" ? "on" : ""} onClick={() => setView("feed")}>Momentos</button>
+        <button type="button" role="tab" aria-selected={view === "gal"} className={view === "gal" ? "on" : ""} onClick={() => setView("gal")}>Galería · {photos.length}</button>
+      </div>
+      {view === "feed" ? (
+        <ul className="feed">
+          {list.map((m) => {
+            const likes = m.likeBase + (m.liked ? 1 : 0);
+            return (
+              <li key={m.id} className="mom">
+                <p className="meta">{DOCENTE.name} · {cuando(m.at, now)}</p>
+                <p className="mom-t">{m.text}</p>
+                {m.imgs.length > 0 && <Pics m={m} onOpen={(i) => ctx.push({ name: "foto", id: m.id, i })} />}
+                {side === "rep" ? (
+                  <button type="button" className={"like" + (m.liked ? " on" : "")} aria-pressed={m.liked} onClick={() => ctx.toggleLike(m.id)}>
+                    <IconHeart /> {m.liked ? "Le gusta" : "Me gusta"}{likes ? ` · ${likes}` : ""}
+                  </button>
+                ) : <p className="likes"><IconHeart /> {likes ? `A ${likes} ${likes === 1 ? "familia le gustó" : "familias les gustó"}` : "Todavía sin reacciones"}</p>}
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        photos.length ? (
+          <ul className="gal">
+            {photos.map(({ m, i, src }) => (
+              <li key={m.id + i}><button type="button" onClick={() => ctx.push({ name: "foto", id: m.id, i })} aria-label={`Foto de ${cuando(m.at, now)}`}><img src={src} alt="" loading="lazy" />{m.illus && <span className="ilus">Ilustración</span>}</button></li>
+            ))}
+          </ul>
+        ) : <p className="muted">Todavía no hay fotos.</p>
+      )}
+      <p className="hint center">{side === "rep" ? "Solo lo ven las familias de 4to grado A." : "Lo ven solo las familias de 4to grado A. Nada se publica fuera de miCole."}</p>
+      {side === "doc" && <div className="dock"><button type="button" className="btn" onClick={() => ctx.push({ name: "momentoNuevo" })}>Nuevo momento</button></div>}
+    </>
+  );
+}
+
+function MomentoNuevo({ ctx }) {
+  const [text, setText] = useState("");
+  const [imgs, setImgs] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const sin = SIN_PERMISO();
+  const add = async (e) => {
+    const files = [...e.target.files].slice(0, 4 - imgs.length); e.target.value = "";
+    setBusy(true);
+    const out = [];
+    for (const f of files) { try { out.push(await shrink(f)); } catch (x) {} }
+    setImgs((v) => [...v, ...out].slice(0, 4)); setBusy(false);
+  };
+  const submit = (e) => {
+    e.preventDefault(); if (!text.trim()) return;
+    ctx.postMomento(text.trim(), imgs); ctx.back();
+    ctx.say("Publicado para las familias de 4to grado A");
+  };
+  return (
+    <form onSubmit={submit} className="compose">
+      <Back onClick={ctx.back}>Cancelar</Back>
+      <h1>Nuevo momento</h1>
+      <label className="field"><span>Qué pasó hoy en clase</span><textarea rows={4} value={text} onChange={(e) => setText(e.target.value)} placeholder="Una o dos líneas sobre lo que hicieron hoy." maxLength={400} /></label>
+      {!text && <button type="button" className="link ink" onClick={() => setText("Hoy hicimos un experimento: pusimos hielo al sol y a la sombra y medimos cuál se derritió primero.")}>Usar un texto de ejemplo</button>}
+      {imgs.length > 0 && (
+        <ul className="thumbs">
+          {imgs.map((src, i) => <li key={i}><img src={src} alt={`Foto ${i + 1}`} /><button type="button" aria-label={`Quitar foto ${i + 1}`} onClick={() => setImgs(imgs.filter((_, j) => j !== i))}>×</button></li>)}
+        </ul>
+      )}
+      {imgs.length < 4 && (
+        <label className="photo">
+          <input type="file" accept="image/*" multiple onChange={add} />
+          <IconCam /> {busy ? "Preparando fotos..." : imgs.length ? "Agregar otra foto" : "Agregar fotos (hasta 4)"}
+        </label>
+      )}
+      {imgs.length > 0 && <p className="warnbox"><b>Antes de publicar:</b> en 4to grado A, {sin.join(" y ")} no tienen permiso de fotos. Revise que no aparezcan.</p>}
+      <p className="hint">Lo ven solo las familias de 4to grado A. Las fotos se comprimen para que no gasten datos.</p>
+      <div className="dock"><button type="submit" className="btn" disabled={!text.trim() || busy}>Publicar para 24 familias</button></div>
+    </form>
+  );
+}
+
+function Foto({ ctx, id, i }) {
+  const now = useNow(ctx.state.clock, 30000);
+  const m = ctx.state.momentos.find((x) => x.id === id);
+  if (!m) return <Back onClick={ctx.back}>Momentos</Back>;
+  return (
+    <div className="foto">
+      <Back onClick={ctx.back}>Momentos</Back>
+      <figure>
+        <img src={m.imgs[i]} alt={m.illus ? "Ilustración de ejemplo" : "Foto de la clase"} />
+        <figcaption><span className="meta">{DOCENTE.name} · {cuando(m.at, now)}{m.illus ? " · Ilustración de ejemplo" : ""}</span>{m.text}</figcaption>
+      </figure>
+    </div>
   );
 }

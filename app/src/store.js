@@ -5,7 +5,7 @@ import { seed, deliverAt } from "./data.js";
 const KEY = "micole-demo-v1";
 
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) return s; } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 4) return s; } catch (e) {}
   return seed();
 }
 function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
@@ -63,8 +63,10 @@ export function useDemo() {
   const setEstado = useCallback((id, estado) => updAviso(id, () => ({ estado })), []);
   const attach = useCallback((id, img) => updAviso(id, (a) => ({ just: true, img, estado: a.estado === "pendiente" ? "recibido" : a.estado })), []);
   const saveAsistencia = useCallback((day, marks) => setState((s) => ({ ...s, asistencia: { ...s.asistencia, [day]: { savedAt: demoNow(s.clock), marks } } })), []);
+  const postMomento = useCallback((text, imgs) => setState((s) => ({ ...s, momentos: [{ id: "p" + Date.now().toString(36), at: demoNow(s.clock), text, imgs, illus: false, likeBase: 0, liked: false }, ...s.momentos] })), []);
+  const toggleLike = useCallback((id) => setState((s) => ({ ...s, momentos: s.momentos.map((m) => (m.id === id ? { ...m, liked: !m.liked } : m)) })), []);
   const reset = useCallback(() => setState(seed()), []);
-  return { state, publish, confirmRead, send, markSeen, setClose, setClock, sendAviso, seeAviso, setEstado, attach, saveAsistencia, reset };
+  return { state, postMomento, toggleLike, publish, confirmRead, send, markSeen, setClose, setClock, sendAviso, seeAviso, setEstado, attach, saveAsistencia, reset };
 }
 
 /* A demo clock that ticks while a screen needs live numbers. */
