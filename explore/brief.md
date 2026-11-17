@@ -84,7 +84,6 @@ Guayaba (#D4614A) is not used on this page. Status colors for the app (present, 
 6. **Closing:** "¿Lo conversamos?" on Pizarra noche (switchable to Papel).
    - Honest line: "Estoy conversando con directores para construirla..."
    - Button: WhatsApp, with the prefilled message.
-   - Self-aware note: "Sí, por WhatsApp, mientras miCole no existe."
    - Email, then a footer with the dark logo and "Caracas, Venezuela".
 
 The main action appears three times: nav, hero and closing.
