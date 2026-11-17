@@ -93,9 +93,10 @@ function render(t){
   $("tassel").setAttribute("transform",`rotate(${sw} ${ex} ${ey}) translate(${ex} ${ey}) scale(1 ${Math.max(grow,0.0001)}) translate(${-ex} ${-ey})`);
   $("tassel").style.opacity=grow>0?1:0;
   // ---- C draws itself under the falling cap
-  $("csweep").style.strokeDashoffset=1-io(seg(t,2.2,3.0));
-  $("Cg").style.opacity = t<2.2?0:1;
-  if(t>=3.0) $("Cg").removeAttribute("mask"); else $("Cg").setAttribute("mask","url(#cmask)");
+  // the C fades in and settles as the cap falls onto it (same as the website intro)
+  const cp=io(seg(t,2.2,2.85)), cs=0.9+0.1*cp;
+  $("Cg").removeAttribute("mask"); $("Cg").style.opacity=cp;
+  $("Cg").setAttribute("transform",`translate(${ccx} ${ccy}) scale(${cs}) translate(${-ccx} ${-ccy})`);
   // ---- the rest of the word rises in, only once the camera is back at full frame
   for(const [id,st] of Object.entries(letters)){const p=out(seg(t,st,st+0.45));
     $(id).style.opacity=clamp(p*2.2); $(id).setAttribute("transform",`translate(0 ${32*(1-p)})`);}
