@@ -2,7 +2,7 @@ import copy
 import gen_logos as G
 base = [t for t in G.TAKES if t["id"] == "pizarra"][0]
 rows = ""
-for label, kw in [("Now", {}), ("Soft", {"soften": 0.03}), ("Softer", {"soften": 0.04, "bwl": 0.32}), ("Softest", {"soften": 0.05, "bwl": 0.29})]:
+for label, kw in [("Softest (asym)", {"soften": 0.05, "bwl": 0.29}), ("Sym .29", {"soften": 0.05, "bw": 0.29}), ("Sym .32", {"soften": 0.05, "bw": 0.32})]:
     c = copy.deepcopy(base); c["refined"] = dict(c["refined"], **kw); v = G.build_take(c)
     for bg, ink in (("#F5EFE3", "#17363A"), ("#10282B", "#F5EFE3")):
         rows += f'<div class="r" style="background:{bg};color:{ink};--bg:{bg};--ink:{ink};--acc:#E59A2F"><b>{label}</b>{v["mark"]}{v["wordmark"]}</div>'

@@ -1,6 +1,6 @@
-# miCole logo: final (Pizarra, round 12)
+# miCole logo: final (Pizarra, round 13)
 
-Locked on 2026-11-17.
+Locked on 2026-11-17. Round 13: band fitted to the C, symmetric, corners softened.
 
 ## Files
 - `micole-wordmark-light.svg` / `.png`: dark slate on paper. Default.

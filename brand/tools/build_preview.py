@@ -20,7 +20,7 @@ TAKES = [
     {
         "id": "pizarra", "num": "1", "name": "Pizarra",
         "pitch": "Chunky grotesque. The cap sits on the left shoulder of the C and leans out over the i, whose dot it replaces. The band is fitted to the letter: its underside follows the outline of the C with an even cut line, so cap and C read as one shape and the whole C stays readable. The cap is drawn to match the type: softly rounded board corners, one cut-line width throughout, and a cord, knot and tassel weighted to sit with the heavy letters. A short tassel hangs off the board corner and stops just above the o, so the word keeps its natural spacing. The most confident and the most legible small. Reads like a product, not a school crest.",
-        "cap": "Round 12: the band is now fitted to the C. Its underside follows the exact outline of the letter with an even cut line, like a hat on a head. Dotless i, cap hanging left. Board 1.32 x the C width, tilted 18 degrees left, cut line 4% of the board width.",
+        "cap": "Round 13: the band is fitted to the C, narrower and symmetric, with its corners softened. Its underside follows the exact outline of the letter with an even cut line, like a hat on a head. Dotless i, cap hanging left. Board 1.32 x the C width, tilted 18 degrees left, cut line 4% of the board width.",
         "light": {"bg": "#F5EFE3", "ink": "#17363A", "acc": "#E59A2F"},
         "dark": {"bg": "#10282B", "ink": "#F5EFE3", "acc": "#E59A2F"},
         "palette": [
