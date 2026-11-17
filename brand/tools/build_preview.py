@@ -20,7 +20,7 @@ TAKES = [
     {
         "id": "pizarra", "num": "1", "name": "Pizarra",
         "pitch": "Chunky grotesque. The cap sits on the left shoulder of the C and leans out over the i, whose dot it replaces. The band is fitted to the letter: its underside follows the outline of the C with an even cut line, so cap and C read as one shape and the whole C stays readable. The cap is drawn to match the type: softly rounded board corners, one cut-line width throughout, and a cord, knot and tassel weighted to sit with the heavy letters. A short tassel hangs off the board corner and stops just above the o, so the word keeps its natural spacing. The most confident and the most legible small. Reads like a product, not a school crest.",
-        "cap": "Round 13: the band is fitted to the C, narrower and symmetric, with its corners softened. Its underside follows the exact outline of the letter with an even cut line, like a hat on a head. Dotless i, cap hanging left. Board 1.32 x the C width, tilted 18 degrees left, cut line 4% of the board width.",
+        "cap": "Round 14: the band is fitted to the C, narrower and symmetric, with its corners softened. The i has no dot; the low corner of the board sits right above it. Its underside follows the exact outline of the letter with an even cut line, like a hat on a head. Dotless i, cap hanging left. Board 1.32 x the C width, tilted 18 degrees left, cut line 4% of the board width.",
         "light": {"bg": "#F5EFE3", "ink": "#17363A", "acc": "#E59A2F"},
         "dark": {"bg": "#10282B", "ink": "#F5EFE3", "acc": "#E59A2F"},
         "palette": [
@@ -109,6 +109,10 @@ def px(tid, kind, mode):
 
 
 sections = []
+fav = """<h3>Final favicon (dark tile, matches the app icon)</h3>
+<div class="sizes" style="background:#F5EFE3"><div class="sz"><img src="brand/final/favicon.svg" width="16" height="16" alt="miCole favicon"><span>16</span></div>
+<div class="sz"><img src="brand/final/favicon.svg" width="32" height="32" alt=""><span>32</span></div>
+<div class="sz"><img src="brand/final/favicon-16.png" width="96" height="96" style="image-rendering:pixelated" alt=""><span>16 px real pixels, zoomed 6x</span></div></div>"""
 for t in TAKES:
     L = logos[t["id"]]
     lt, dk = t["light"], t["dark"]
@@ -161,11 +165,11 @@ for t in TAKES:
       </div>'''
     sections.append(f'''
     <section class="take" id="{t["id"]}">
-      <header class="take-h"><span class="num">{t["num"]}</span><h2>{t["name"]}</h2></header>
+      <header class="take-h"><span class="num">{t["num"]}</span><h2>{t["name"]}{"" if t["id"] == "pizarra" else " (considered, not chosen)"}</h2></header>
       <p class="pitch">{t["pitch"]}</p>
       <p class="meta">{t["cap"]}</p>
       <h3>Wordmark, light and dark</h3>{wm}{ivar}
-      <h3>Compact mark: favicon and app icon</h3>{sizes}{appicon}
+      <h3>Compact mark: favicon and app icon</h3>{sizes}{appicon}{fav if t["id"] == "pizarra" else ""}
       <div class="cols">
         <div><h3>Palette</h3><ul class="pal">{pal}</ul><ul class="checks">{checks}</ul></div>
         <div><h3>Font pairing</h3><p class="note">{t["fonts"]}</p>{specimen}</div>
@@ -228,10 +232,10 @@ figure{{margin:0}} figcaption{{font-size:14px;color:var(--muted);margin-top:6px}
 </style></head>
 <body><main>
 <div class="intro">
-<h1>miCole: three logo takes</h1>
-<p>Each take has its own lettering, cap size and tassel. Round 2: every cap now tilts to the left and joins the C as one shape (no gap between cap and letter). All marks are outlined vector paths (no font needed to display the logo). The 16 px "simple" version drops the band and tassel and keeps only the flat diamond, as briefed.</p>
-<p>Pick one take (or name parts to combine: "lettering from 3, cap angle from 1"). Nothing here is final until you pick.</p>
-<nav class="jump"><a href="#pizarra">1 Pizarra</a><a href="#tinta">2 Tinta</a><a href="#trazo">3 Trazo</a><a href="#side">Side by side</a></nav>
+<h1>miCole logo: decision record</h1>
+<p><b>Chosen: Pizarra, round 14, locked 2026-11-17.</b> Final files live in <code>brand/final/</code>. All marks are outlined vector paths, so no font is needed to display the logo.</p>
+<p>Below: the chosen logo first, then the two directions that were considered and not chosen (Tinta and Trazo), kept for the record.</p>
+<nav class="jump"><a href="#pizarra">Chosen: Pizarra</a><a href="#tinta">Considered: Tinta</a><a href="#trazo">Considered: Trazo</a><a href="#side">Side by side</a></nav>
 </div>
 {"".join(sections)}
 <section class="compare" id="side"><h3>Side by side, same height</h3>

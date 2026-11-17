@@ -27,3 +27,13 @@ Running total: 8.0 s.
 - No sfx folder or music in the project yet. Prototype will be silent.
 - Proposed cues once the picture is locked: soft pop (dot, 0.0s), quick whoosh (line, 1.0s), soft thud (cap lands, 3.0s), light tick on each word of the tagline.
 - Sources must be generated or licensed. The piece has to work muted (most WhatsApp and Instagram viewing is muted), and it does: all the meaning is on screen.
+
+## v2 (2026-11-17): fixes from the independent review
+Length is now 10.5 s, in 9:16, 16:9 and 1:1.
+- Opening hook: one mango ripple out of the dot (0.15 to 1.0 s).
+- The camera settles on the C before the fall (1.8 to 2.2 s) and holds still, so the cap visibly falls into the frame (2.2 to 3.0 s).
+- The band unfolds with the board instead of fading in (no grey ghost).
+- The camera pulls back to full frame (3.3 to 4.0 s) before "mi" and "ole" rise (4.0 to 4.8 s): no letters are clipped.
+- Tagline 4.9 to 7.0 s, leaves by 7.35 s; CTA starts at 7.4 s (no overlap).
+- End card: "Muy pronto" + "Agenda una conversación" + "WhatsApp +58 424 279 9280", fully in by about 8.3 s, held to 10.5 s.
+- Sound retimed to match. The landing thud and the pad now carry energy at 300 Hz to 1 kHz for phone speakers. Tassel ticks fire after the landing, one per swing. Tagline taps are varied mallet notes instead of identical clicks.

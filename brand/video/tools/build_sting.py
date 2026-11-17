@@ -21,7 +21,8 @@ logo = f'''
   {cord1}
   <g id="tassel">{cord2}{E["knot"]}{E["fringe"]}</g>
   {tag(E["btn"], "btn")}
-</g>'''
+</g>
+<circle id="ring" cx="{btn[0]}" cy="{btn[1]}" r="9" fill="none" stroke="#E59A2F" stroke-width="3"/>'''
 data = {"vb": vb, "btn": btn, "edge": edge}
 html = open("sting_template.html").read().replace("/*LOGO*/", logo).replace("/*DATA*/", json.dumps(data))
 open("/home/user/mi-cole/brand/video/sting.html", "w").write(html)

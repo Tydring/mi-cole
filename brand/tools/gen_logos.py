@@ -478,7 +478,7 @@ def build_take(cfg):
 TAKES = [
     {
         "id": "pizarra", "name": "Pizarra", "kind": "font", "font": "bricolage700.ttf",
-        "tracking": -4, "kern": {1: 12, 2: 8}, "dotless": True,
+        "tracking": -4, "kern": {1: 20, 2: 8}, "dotless": True,
         "cap_scale": 1.32, "cap_dx": -0.30, "seat": 0.08, "fit": True, "cap_angle": -18, "tassel": "right", "knock": 0.032,
         "attach": 0.42, "bw": 0.34, "tassel_len": 0.30, "i_variant": False,
         "refined": {"bw": 0.29, "depth": 0.44, "k": 0.042, "attach": 0.475, "tassel_len": 0.13, "soften": 0.05},
