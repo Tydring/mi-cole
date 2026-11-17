@@ -28,13 +28,13 @@ It is not the product. Nothing a director types leaves their phone.
 
 | Slice | Flow | Roles |
 |---|---|---|
-| 1 | Circular + who read it: publish, receive, confirm, see the read list (e.g. "18 de 24 representantes") (done) | Dirección, Representante |
-| 2 | Messages with office hours: 7:00 a.m. to 3:30 p.m. by default; after hours, messages wait until the next school day; Dirección can read conversations and change the hours | Representante, Docente, Dirección |
-| 3 | Momentos del día + gallery per grade | Docente, Representante |
-| 4 | Tareas: what to bring and for when | Docente, Representante |
-| 5 | Asistencia: tap through a list of 24 students; the representante sees "llegó a las 7:15" or "ausente" | Docente, Representante |
+| 1 | Circular + who read it (done) | Dirección, Representante |
+| 2 | Messages with office hours (done) | Representante, Docente, Dirección |
+| 3 | Asistencia + avisos de inasistencia: the representante notifies absence, lateness or early pickup; coordinación receives it, can ask for a justificativo and mark it justified; the teacher sees it pre-filled when taking attendance; the representante sees today's status (done) | all three |
+| 4 | Momentos del día + gallery per grade | Docente, Representante |
+| 5 | Tareas: what to bring and for when | Docente, Representante |
 
-Order changed 2026-11-17 after the brainstorm in `IDEAS.md`. Messaging moved up; asistencia stays.
+Order changed 2026-11-17 after the brainstorm in `IDEAS.md`: messaging moved up. Later the same day, avisos de inasistencia were added (parents notify coordinación by email today) and joined asistencia as slice 3. Coordinación is an "Avisos" tab inside Dirección; the aviso reaches coordinación and the teacher; the justificativo is optional and coordinación can ask for it.
 
 Slice 1 alone is already worth showing. After each slice I stop, you try it on your phone, and then we go on.
 

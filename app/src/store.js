@@ -5,7 +5,7 @@ import { seed, deliverAt } from "./data.js";
 const KEY = "micole-demo-v1";
 
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 2) return s; } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 3) return s; } catch (e) {}
   return seed();
 }
 function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
@@ -53,8 +53,18 @@ export function useDemo() {
   }, []);
   const setClose = useCallback((close) => setState((s) => ({ ...s, close })), []);
   const setClock = useCallback((mode) => setState((s) => ({ ...s, clock: clockFor(mode, s.close) })), []);
+  const sendAviso = useCallback((a) => {
+    const id = "a" + Date.now().toString(36);
+    setState((s) => ({ ...s, avisos: [{ id, ...a, sentAt: demoNow(s.clock), estado: "enviado", seenAt: null }, ...s.avisos] }));
+    return id;
+  }, []);
+  const updAviso = (id, f) => setState((s) => ({ ...s, avisos: s.avisos.map((a) => (a.id === id ? { ...a, ...f(a, demoNow(s.clock)) } : a)) }));
+  const seeAviso = useCallback((id) => updAviso(id, (a, now) => (a.seenAt ? {} : { seenAt: now, estado: a.estado === "enviado" ? "recibido" : a.estado })), []);
+  const setEstado = useCallback((id, estado) => updAviso(id, () => ({ estado })), []);
+  const attach = useCallback((id, img) => updAviso(id, (a) => ({ just: true, img, estado: a.estado === "pendiente" ? "recibido" : a.estado })), []);
+  const saveAsistencia = useCallback((day, marks) => setState((s) => ({ ...s, asistencia: { ...s.asistencia, [day]: { savedAt: demoNow(s.clock), marks } } })), []);
   const reset = useCallback(() => setState(seed()), []);
-  return { state, publish, confirmRead, send, markSeen, setClose, setClock, reset };
+  return { state, publish, confirmRead, send, markSeen, setClose, setClock, sendAviso, seeAviso, setEstado, attach, saveAsistencia, reset };
 }
 
 /* A demo clock that ticks while a screen needs live numbers. */

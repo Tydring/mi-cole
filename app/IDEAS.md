@@ -64,9 +64,12 @@ To add, all cheap:
 - **Mensualidad payment reminders.** This is likely the director's biggest pain, and it is sensitive.
 - **Families with several children** in different secciones.
 
+## Avisos de inasistencia (added 2026-11-17, built in slice 3)
+Today parents email coordinación when a child will miss school, because it is important and leaves a trace. In miCole it is not a chat message: it is a structured aviso (type, day, reason, optional justificativo photo) that goes to coordinación and the teacher, can be sent at any hour without waking anyone, shows "Recibido por coordinación" to the parent, and arrives pre-filled in the teacher's attendance list.
+
 ## Demo order (updated 2026-11-17)
 1. Circulares + who read it (done)
-2. Messages with office hours
-3. Momentos + gallery
-4. Tareas
-5. Asistencia (kept: Christian likes it)
+2. Messages with office hours (done)
+3. Asistencia + avisos de inasistencia (done)
+4. Momentos + gallery
+5. Tareas

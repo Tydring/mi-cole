@@ -65,8 +65,10 @@ export function seed() {
     return { id, title, body, audience, publishedAt, speed: 90, reads: { [DEMO_REP]: publishedAt + 2.6 * H } };
   };
   return {
-    v: 2,
+    v: 3,
     close: DEFAULT_CLOSE,
+    avisos: seedAvisos(),
+    asistencia: {},
     clock: { mode: "real" },
     ...seedMensajes(),
     circulares: [
@@ -159,8 +161,52 @@ export function seedMensajes() {
       m(DEMO_REP, "rep", atDay(y, 10, 42), "¡Muchas gracias!"),
       m(a, "rep", atDay(y2, 14, 50), "Profesora, ¿la salida al museo necesita autorización firmada?"),
       m(a, "doc", atDay(y2, 15, 5), "Sí, la enviamos en la carpeta. Debe volver firmada antes del jueves."),
-      m(b, "rep", atDay(y, 20, 15), `Buenas noches, profesora. Mañana ${repById(b).child.split(" ")[0]} llega un poco tarde por una cita médica.`),
+      m(b, "rep", atDay(y, 20, 15), "Buenas noches, profesora. ¿Hasta cuándo hay plazo para entregar el proyecto de Ciencias?"),
     ],
     seen: { [DEMO_REP + ":rep"]: atDay(y, 11, 0), [DEMO_REP + ":doc"]: atDay(y, 11, 0), [a + ":doc"]: atDay(y2, 16, 0) },
   };
+}
+
+/* ---------- asistencia + avisos de inasistencia ---------- */
+export const TIPOS = { ausente: "No asistirá", tarde: "Llegará tarde", retiro: "Se retira temprano" };
+export const MOTIVOS = ["Enfermedad", "Cita médica", "Viaje", "Otro"];
+export const ESTADOS = {
+  enviado: "Enviado · esperando a coordinación",
+  recibido: "Recibido por coordinación",
+  pendiente: "Coordinación pide el justificativo",
+  justificada: "Justificada",
+};
+export function dayKey(ts) { const d = new Date(ts); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; }
+export function keyToTs(k) { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d, 12).getTime(); }
+export function schoolDayFrom(ts, offset = 0) {
+  const d = new Date(ts); let n = offset;
+  while (!isSchoolDay(d)) d.setDate(d.getDate() + 1);
+  while (n > 0) { d.setDate(d.getDate() + 1); if (isSchoolDay(d)) n--; }
+  return dayKey(d.getTime());
+}
+export const isSchoolDayKey = (k) => isSchoolDay(new Date(keyToTs(k)));
+export function dayLabel(k, now) {
+  const diff = Math.round((keyToTs(k) - keyToTs(dayKey(now))) / D);
+  if (diff === 0) return "hoy";
+  if (diff === 1) return "mañana";
+  if (diff === -1) return "ayer";
+  const d = new Date(keyToTs(k));
+  return `${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()]}`;
+}
+
+export function seedAvisos() {
+  const ref = schoolDayFrom(Date.now());
+  const refTs = keyToTs(ref);
+  const t4A = REPS.filter((r) => r.seccion === "4A" && r.id !== DEMO_REP);
+  const r2A = REPS.find((r) => r.seccion === "2A");
+  const before = new Date(refTs); before.setDate(before.getDate() - 1); while (!isSchoolDay(before)) before.setDate(before.getDate() - 1);
+  const last = new Date(refTs); last.setDate(last.getDate() - 6); while (!isSchoolDay(last)) last.setDate(last.getDate() - 1);
+  const at = (base, h, m) => { const x = new Date(base); x.setHours(h, m, 0, 0); return x.getTime(); };
+  const a = (id, rep, tipo, day, motivo, nota, sentAt, estado, seenAt, just = false) => ({ id, rep, tipo, day, motivo, nota, sentAt, estado, seenAt, just, img: null });
+  return [
+    a("a1", t4A[5].id, "ausente", ref, "Enfermedad", "Amaneció con fiebre. Les aviso cómo sigue.", at(refTs, 6, 12), "enviado", null),
+    a("a2", t4A[11].id, "tarde", ref, "Cita médica", "Llega a las 9:00 a.m. aproximadamente.", at(before, 20, 15), "recibido", at(refTs, 7, 2)),
+    a("a3", r2A.id, "ausente", ref, "Viaje", "Viaje familiar, vuelve el lunes.", at(before, 17, 40), "pendiente", at(refTs, 7, 4)),
+    a("a4", DEMO_REP, "ausente", dayKey(last.getTime()), "Enfermedad", "Gripe.", at(last, 6, 30), "justificada", at(last, 7, 5), true),
+  ];
 }

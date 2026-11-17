@@ -3,6 +3,7 @@ import { useDemo, useNow, demoNow } from "./store.js";
 import {
   SECCIONES, TOTAL, DEMO_REP, DEMO_CHILD, EJEMPLO, DOCENTE, CLOSE_OPTIONS,
   repsFor, repById, readAt, readStats, cuando, hora, horaMin, audienceLabel, seccionById, isOpen, deliverAt, cuandoLlega,
+  TIPOS, MOTIVOS, ESTADOS, dayKey, keyToTs, schoolDayFrom, isSchoolDayKey, dayLabel,
 } from "./data.js";
 
 const ROLES = [
@@ -11,10 +12,11 @@ const ROLES = [
   { id: "representante", label: "Representante" },
 ];
 const TABS = {
-  direccion: [{ id: "circulares", label: "Circulares" }, { id: "mensajes", label: "Mensajes" }],
-  docente: [{ id: "mensajes", label: "Mensajes" }],
-  representante: [{ id: "circulares", label: "Circulares" }, { id: "mensajes", label: "Mensajes" }],
+  direccion: [{ id: "circulares", label: "Circulares" }, { id: "avisos", label: "Avisos" }, { id: "mensajes", label: "Mensajes" }],
+  docente: [{ id: "asistencia", label: "Asistencia" }, { id: "mensajes", label: "Mensajes" }],
+  representante: [{ id: "circulares", label: "Circulares" }, { id: "asistencia", label: "Asistencia" }, { id: "mensajes", label: "Mensajes" }],
 };
+const HOME = { direccion: "circulares", docente: "asistencia", representante: "circulares" };
 const CLOCKS = [
   { id: "real", label: "Hora real" },
   { id: "tarde", label: "Hoy, 6:00 p.m." },
@@ -36,7 +38,7 @@ export default function App() {
   const { state } = demo;
   const now = useNow(state.clock, 5000);
   const [role, setRole] = useState(() => { try { return sessionStorage.getItem("micole-role") || "direccion"; } catch (e) { return "direccion"; } });
-  const [tabs, setTabs] = useState({ direccion: "circulares", docente: "mensajes", representante: "circulares" });
+  const [tabs, setTabs] = useState(HOME);
   const [stacks, setStacks] = useState({ direccion: [], docente: [], representante: [] });
   const [toast, setToast] = useState(null);
   const toastT = useRef(0);
@@ -62,13 +64,15 @@ export default function App() {
   const repCirc = state.circulares.filter((c) => visibleToRep(c) && !c.reads[DEMO_REP]).length;
   const repMsg = unreadMsgs(state, DEMO_REP, "rep", now);
   const docMsg = threads(state).reduce((a, t) => a + unreadMsgs(state, t, "doc", now), 0);
-  const badges = { direccion: {}, docente: { mensajes: docMsg }, representante: { circulares: repCirc, mensajes: repMsg } };
-  const pings = { direccion: false, docente: docMsg > 0, representante: repCirc + repMsg > 0 };
+  const newAvisos = state.avisos.filter((a) => !a.seenAt && a.sentAt <= now).length;
+  const askedJust = state.avisos.filter((a) => a.rep === DEMO_REP && a.estado === "pendiente").length;
+  const badges = { direccion: { avisos: newAvisos }, docente: { mensajes: docMsg }, representante: { circulares: repCirc, mensajes: repMsg, asistencia: askedJust } };
+  const pings = { direccion: newAvisos > 0, docente: docMsg > 0, representante: repCirc + repMsg + askedJust > 0 };
 
   const reset = () => {
     if (!confirm("¿Reiniciar la demo? Se borra todo lo que se publicó y escribió, y vuelve al inicio.")) return;
     demo.reset(); setStacks({ direccion: [], docente: [], representante: [] });
-    setTabs({ direccion: "circulares", docente: "mensajes", representante: "circulares" }); setRole("direccion"); say("Demo reiniciada");
+    setTabs(HOME); setRole("direccion"); say("Demo reiniciada");
   };
   const setClock = (mode) => {
     demo.setClock(mode);
@@ -85,11 +89,14 @@ export default function App() {
     if (screen.name === "compose") view = <DirCompose ctx={ctx} />;
     else if (screen.name === "circular") view = <DirCircular ctx={ctx} id={screen.id} />;
     else if (screen.name === "seccion") view = <DirSeccion ctx={ctx} id={screen.id} sec={screen.sec} />;
-    else view = tab === "mensajes" ? <DirMensajes ctx={ctx} /> : <DirHome ctx={ctx} />;
+    else if (screen.name === "aviso") view = <DirAviso ctx={ctx} id={screen.id} />;
+    else view = tab === "mensajes" ? <DirMensajes ctx={ctx} /> : tab === "avisos" ? <DirAvisos ctx={ctx} /> : <DirHome ctx={ctx} />;
   } else if (role === "representante") {
     if (screen.name === "circular") view = <RepCircular ctx={ctx} id={screen.id} />;
-    else view = tab === "mensajes" ? <RepMensajes ctx={ctx} /> : <RepHome ctx={ctx} />;
-  } else view = <DocMensajes ctx={ctx} />;
+    else if (screen.name === "avisoNuevo") view = <RepAvisoNuevo ctx={ctx} />;
+    else if (screen.name === "aviso") view = <RepAviso ctx={ctx} id={screen.id} />;
+    else view = tab === "mensajes" ? <RepMensajes ctx={ctx} /> : tab === "asistencia" ? <RepAsistencia ctx={ctx} /> : <RepHome ctx={ctx} />;
+  } else view = tab === "mensajes" ? <DocMensajes ctx={ctx} /> : <DocAsistencia ctx={ctx} />;
 
   return (
     <div className={showTabs ? "with-tabs" : ""}>
@@ -99,7 +106,7 @@ export default function App() {
         <nav className="tabbar" aria-label="Secciones">
           {TABS[role].map((t) => (
             <button key={t.id} type="button" className={tab === t.id ? "on" : ""} aria-current={tab === t.id ? "page" : undefined} onClick={() => setTab(t.id)}>
-              {t.id === "circulares" ? <IconDoc /> : <IconChat />}
+              {t.id === "circulares" ? <IconDoc /> : t.id === "mensajes" ? <IconChat /> : <IconCheck />}
               <span>{t.label}</span>
               {badges[role][t.id] > 0 && <b className="badge">{badges[role][t.id]}</b>}
             </button>
@@ -152,6 +159,8 @@ const svg = (d, w = 22) => (p) => <svg width={w} height={w} viewBox="0 0 24 24" 
 const IconDoc = svg(<><path d="M7 3h7l4 4v14H7z" /><path d="M14 3v4h4M10 12h5M10 16h5" /></>);
 const IconChat = svg(<path d="M4 5h16v11H9l-5 4z" />);
 const IconClock = svg(<><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></>, 15);
+const IconCheck = svg(<><rect x="4" y="4" width="16" height="16" rx="3" /><path d="m8.5 12 2.5 2.5 4.5-5" /></>);
+const IconCam = svg(<><path d="M4 8h3l2-2.5h6L17 8h3v11H4z" /><circle cx="12" cy="13" r="3.5" /></>, 20);
 const IconSend = svg(<path d="M4 12 20 4l-5 16-3-7z" />);
 
 function Head({ title, sub }) {
@@ -442,7 +451,7 @@ function DocMensajes({ ctx }) {
       <h1>Mensajes</h1>
       <HoursNote state={ctx.state} now={now} />
       <ThreadList ctx={ctx} side="doc" list={threads(ctx.state)} />
-      <p className="hint center">Momentos del día, tareas y asistencia llegan en los próximos pasos de la demo.</p>
+      <p className="hint center">Momentos del día y tareas llegan en los próximos pasos de la demo.</p>
     </>
   );
 }
@@ -503,6 +512,263 @@ function RepMensajes({ ctx }) {
       <h1>Mensajes</h1>
       <HoursNote state={ctx.state} now={now} />
       <ThreadList ctx={ctx} side="rep" list={[DEMO_REP]} />
+    </>
+  );
+}
+
+/* ---------- asistencia + avisos de inasistencia ---------- */
+const childOf = (rep) => repById(rep).child;
+const secOf = (rep) => seccionById(repById(rep).seccion).name;
+function Estado({ a, now }) {
+  const cls = { enviado: "", recibido: "ok", pendiente: "warn", justificada: "ok" }[a.estado];
+  let t = ESTADOS[a.estado];
+  if (a.estado === "recibido" && a.seenAt) t += ` · ${cuando(a.seenAt, now)}`;
+  return <span className={"pill " + cls}>{t}</span>;
+}
+function avisoLine(a, now) { return `${TIPOS[a.tipo]} ${dayLabel(a.day, now)} · ${a.motivo}`; }
+
+/* image from the phone, shrunk so it fits in the demo's local storage */
+function shrink(file) {
+  return new Promise((ok, no) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, 700 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      ok(c.toDataURL("image/jpeg", 0.6));
+    };
+    img.onerror = no; img.src = url;
+  });
+}
+function PhotoInput({ onPick, label }) {
+  return (
+    <label className="photo">
+      <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files[0]; if (f) { try { onPick(await shrink(f)); } catch (x) { onPick(null); } } e.target.value = ""; }} />
+      <IconCam /> {label}
+    </label>
+  );
+}
+function Just({ a }) {
+  if (a.img) return <img className="justimg" src={a.img} alt="Foto del justificativo" />;
+  if (a.just) return <p className="muted">Justificativo entregado.</p>;
+  return <p className="muted">Sin justificativo.</p>;
+}
+
+/* Representante */
+function RepAsistencia({ ctx }) {
+  const now = useNow(ctx.state.clock, 30000);
+  const { state } = ctx;
+  const today = dayKey(now);
+  const rec = state.asistencia[today];
+  const aviso = state.avisos.find((a) => a.rep === DEMO_REP && a.day === today);
+  let status;
+  if (!isSchoolDayKey(today)) status = <>Hoy no hay clases.</>;
+  else if (rec) {
+    const m = rec.marks[DEMO_REP] || "presente";
+    status = m === "presente" ? <><b>Sofía llegó.</b> Asistencia pasada a las {hora(rec.savedAt)}</>
+      : m === "tarde" ? <><b>Sofía llegó tarde.</b> Registrado a las {hora(rec.savedAt)}</>
+      : <><b>Sofía no asistió hoy.</b>{aviso ? " Usted avisó a coordinación." : " Si no avisó, puede hacerlo aquí abajo."}</>;
+  } else status = <>La asistencia de hoy todavía no se ha pasado.{aviso ? ` Usted avisó: ${TIPOS[aviso.tipo].toLowerCase()}.` : ""}</>;
+  const mine = state.avisos.filter((a) => a.rep === DEMO_REP).sort((x, y) => y.sentAt - x.sentAt);
+  return (
+    <>
+      <Head title={DEMO_CHILD} sub="4to grado A · Colegio Demo" />
+      <h1>Asistencia</h1>
+      <section className="today"><span className="meta">Hoy</span><p>{status}</p></section>
+      <button type="button" className="btn" onClick={() => ctx.push({ name: "avisoNuevo" })}>Avisar inasistencia</button>
+      <p className="hint">Para avisar que no asistirá, que llegará tarde o que se retira temprano. Llega a coordinación y a la docente.</p>
+      <h2>Sus avisos</h2>
+      {mine.length ? (
+        <ul className="cards">
+          {mine.map((a) => (
+            <li key={a.id}>
+              <button type="button" className={"card" + (a.estado === "pendiente" ? " new" : "")} onClick={() => ctx.push({ name: "aviso", id: a.id })}>
+                <span className="card-t">{TIPOS[a.tipo]} {dayLabel(a.day, now)}</span>
+                <span className="meta">{a.motivo} · enviado {cuando(a.sentAt, now)}</span>
+                <Estado a={a} now={now} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : <p className="muted">Todavía no ha enviado avisos.</p>}
+    </>
+  );
+}
+
+function RepAvisoNuevo({ ctx }) {
+  const now = useNow(ctx.state.clock, 30000);
+  const today = dayKey(now);
+  const next = schoolDayFrom(now, isSchoolDayKey(today) ? 1 : 0);
+  const [tipo, setTipo] = useState("ausente");
+  const [dia, setDia] = useState(isSchoolDayKey(today) ? today : next);
+  const [otra, setOtra] = useState(false);
+  const [motivo, setMotivo] = useState("Enfermedad");
+  const [nota, setNota] = useState("");
+  const [img, setImg] = useState(null);
+  const submit = (e) => {
+    e.preventDefault(); if (!dia) return;
+    const id = ctx.sendAviso({ rep: DEMO_REP, tipo, day: dia, motivo, nota: nota.trim(), just: !!img, img });
+    ctx.replace({ name: "aviso", id });
+    ctx.say("Aviso enviado a coordinación y a la docente");
+  };
+  const Chip = ({ on, onClick, children }) => <button type="button" className={"chip" + (on ? " on" : "")} aria-pressed={on} onClick={onClick}>{children}</button>;
+  const dias = [...new Set([isSchoolDayKey(today) ? today : null, next].filter(Boolean))];
+  return (
+    <form onSubmit={submit} className="compose">
+      <Back onClick={ctx.back}>Cancelar</Back>
+      <h1>Avisar inasistencia</h1>
+      <p className="meta">{DEMO_CHILD} · 4to grado A</p>
+      <fieldset><legend>Qué pasa</legend><div className="chips">{Object.entries(TIPOS).map(([k, v]) => <Chip key={k} on={tipo === k} onClick={() => setTipo(k)}>{v}</Chip>)}</div></fieldset>
+      <fieldset><legend>Cuándo</legend><div className="chips">
+        {dias.map((k) => <Chip key={k} on={!otra && dia === k} onClick={() => { setOtra(false); setDia(k); }}>{dayLabel(k, now).replace(/^./, (c) => c.toUpperCase())}</Chip>)}
+        <Chip on={otra} onClick={() => { setOtra(true); setDia(""); }}>Otra fecha</Chip>
+      </div>
+      {otra && <label className="field" style={{ marginTop: 10 }}><span>Fecha</span><input type="date" min={today} value={dia} onChange={(e) => setDia(e.target.value)} /></label>}
+      </fieldset>
+      <fieldset><legend>Motivo</legend><div className="chips">{MOTIVOS.map((m) => <Chip key={m} on={motivo === m} onClick={() => setMotivo(m)}>{m}</Chip>)}</div></fieldset>
+      <label className="field"><span>Nota (opcional)</span><textarea rows={3} value={nota} onChange={(e) => setNota(e.target.value)} placeholder={tipo === "tarde" ? "Por ejemplo: llega a las 9:00 a.m." : "Lo que coordinación deba saber"} /></label>
+      {img ? <div className="justwrap"><img className="justimg" src={img} alt="Foto del justificativo" /><button type="button" className="link" onClick={() => setImg(null)}>Quitar foto</button></div>
+        : <PhotoInput onPick={setImg} label="Adjuntar justificativo (opcional)" />}
+      <p className="hint">Puede enviarlo a cualquier hora. Nadie recibe avisos de noche: coordinación lo ve a las 7:00 a.m. Al principio también se copiará al correo de coordinación, como hoy.</p>
+      <div className="dock"><button type="submit" className="btn" disabled={!dia}>Enviar aviso</button></div>
+    </form>
+  );
+}
+
+function RepAviso({ ctx, id }) {
+  const now = useNow(ctx.state.clock, 5000);
+  const a = ctx.state.avisos.find((x) => x.id === id);
+  if (!a) return <Back onClick={ctx.back}>Asistencia</Back>;
+  return (
+    <>
+      <Back onClick={ctx.back}>Asistencia</Back>
+      <p className="meta">{DEMO_CHILD} · enviado {cuando(a.sentAt, now)}</p>
+      <h1>{TIPOS[a.tipo]} {dayLabel(a.day, now)}</h1>
+      <Estado a={a} now={now} />
+      <dl className="facts"><dt>Motivo</dt><dd>{a.motivo}</dd>{a.nota && <><dt>Nota</dt><dd>{a.nota}</dd></>}<dt>Para</dt><dd>Coordinación y {DOCENTE.name}</dd></dl>
+      <h2>Justificativo</h2>
+      <Just a={a} />
+      {a.estado === "pendiente" && <p className="warnbox">Coordinación pide el justificativo para dar la inasistencia por justificada.</p>}
+      {!a.img && a.estado !== "justificada" && <PhotoInput onPick={(img) => { if (img) { ctx.attach(a.id, img); ctx.say("Justificativo enviado"); } }} label={a.estado === "pendiente" ? "Enviar foto del justificativo" : "Adjuntar justificativo"} />}
+    </>
+  );
+}
+
+/* Dirección / coordinación */
+function DirAvisos({ ctx }) {
+  const now = useNow(ctx.state.clock, 5000);
+  const today = dayKey(now);
+  const list = ctx.state.avisos.filter((a) => a.sentAt <= now);
+  const groups = [
+    ["Hoy", list.filter((a) => a.day === today)],
+    ["Próximos días", list.filter((a) => a.day > today)],
+    ["Anteriores", list.filter((a) => a.day < today)],
+  ];
+  const rec = ctx.state.asistencia[today];
+  return (
+    <>
+      <Head title="Colegio Demo" sub="Dirección y coordinación" />
+      <h1>Avisos de inasistencia</h1>
+      <p className="hours"><IconClock /> 4to grado A: {rec ? `asistencia pasada a las ${hora(rec.savedAt)}` : "asistencia de hoy pendiente"}</p>
+      {groups.map(([g, as]) => as.length > 0 && (
+        <section key={g}>
+          <h2>{g} <span className="n">{as.length}</span></h2>
+          <ul className="cards">
+            {as.sort((x, y) => y.sentAt - x.sentAt).map((a) => (
+              <li key={a.id}>
+                <button type="button" className={"card" + (!a.seenAt ? " new" : "")} onClick={() => ctx.push({ name: "aviso", id: a.id })}>
+                  <span className="meta">{!a.seenAt && <span className="tag">Nuevo</span>}{secOf(a.rep)} · {cuando(a.sentAt, now)}</span>
+                  <span className="card-t">{childOf(a.rep)}{a.rep === DEMO_REP && <em className="you">Familia de la demo</em>}</span>
+                  <span className="snip">{avisoLine(a, now)}{a.just ? " · con justificativo" : ""}</span>
+                  {a.seenAt && <Estado a={a} now={now} />}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </>
+  );
+}
+
+function DirAviso({ ctx, id }) {
+  const now = useNow(ctx.state.clock, 5000);
+  const a = ctx.state.avisos.find((x) => x.id === id);
+  useEffect(() => { if (a && !a.seenAt) ctx.seeAviso(id); }, [id]);
+  if (!a) return <Back onClick={ctx.back}>Avisos</Back>;
+  return (
+    <>
+      <Back onClick={ctx.back}>Avisos</Back>
+      <p className="meta">{secOf(a.rep)} · enviado {cuando(a.sentAt, now)} por su representante</p>
+      <h1>{childOf(a.rep)}</h1>
+      <Estado a={a} now={now} />
+      <dl className="facts"><dt>Aviso</dt><dd>{TIPOS[a.tipo]} {dayLabel(a.day, now)}</dd><dt>Motivo</dt><dd>{a.motivo}</dd>{a.nota && <><dt>Nota</dt><dd>{a.nota}</dd></>}</dl>
+      <h2>Justificativo</h2>
+      <Just a={a} />
+      <p className="hint">El representante ya ve que usted lo recibió. La docente lo ve en su lista de asistencia.</p>
+      {a.estado !== "justificada" && (
+        <div className="dock two">
+          {!a.just && a.estado !== "pendiente" && <button type="button" className="btn ghost" onClick={() => { ctx.setEstado(a.id, "pendiente"); ctx.say("Se le pidió el justificativo al representante"); }}>Pedir justificativo</button>}
+          <button type="button" className="btn" onClick={() => { ctx.setEstado(a.id, "justificada"); ctx.say("Inasistencia justificada"); }}>Marcar como justificada</button>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* Docente */
+function DocAsistencia({ ctx }) {
+  const now = useNow(ctx.state.clock, 30000);
+  const { state } = ctx;
+  const today = dayKey(now);
+  const reps = repsFor("4A");
+  const avisos = Object.fromEntries(state.avisos.filter((a) => a.day === today && a.sentAt <= now && repById(a.rep).seccion === "4A").map((a) => [a.rep, a]));
+  const rec = state.asistencia[today];
+  const initial = () => Object.fromEntries(reps.map((r) => [r.id, rec ? rec.marks[r.id] || "presente" : avisos[r.id] && avisos[r.id].tipo !== "retiro" ? avisos[r.id].tipo : "presente"]));
+  const [marks, setMarks] = useState(initial);
+  const [editing, setEditing] = useState(!rec);
+  const school = isSchoolDayKey(today);
+  const count = (k) => Object.values(marks).filter((v) => v === k).length;
+  const save = () => {
+    const m = Object.fromEntries(Object.entries(marks).filter(([, v]) => v !== "presente"));
+    ctx.saveAsistencia(today, m); setEditing(false);
+    ctx.say("Asistencia guardada. Los representantes ya lo ven.");
+  };
+  const opts = [["presente", "P", "Presente"], ["ausente", "A", "Ausente"], ["tarde", "T", "Tarde"]];
+  return (
+    <>
+      <Head title={DOCENTE.name} sub="4to grado A · Colegio Demo" />
+      <h1>Asistencia</h1>
+      {!school ? <p className="muted">Hoy no hay clases. Con la hora simulada puede mostrar un día de clases.</p> : (
+        <>
+          <p className="hours"><IconClock /> {rec && !editing ? `Pasada a las ${hora(rec.savedAt)} · ${count("presente")} presentes, ${count("ausente")} ausentes, ${count("tarde")} tarde` : `Hoy · ${reps.length} estudiantes`}</p>
+          {Object.keys(avisos).length > 0 && (
+            <section className="avisobox">
+              <h2>Avisos de hoy <span className="n">{Object.keys(avisos).length}</span></h2>
+              <ul>{Object.values(avisos).map((a) => <li key={a.id}><b>{childOf(a.rep)}</b>: {TIPOS[a.tipo].toLowerCase()} · {a.motivo}{a.nota ? `. ${a.nota}` : ""}</li>)}</ul>
+            </section>
+          )}
+          <ul className="roll">
+            {reps.map((r) => {
+              const a = avisos[r.id];
+              return (
+                <li key={r.id}>
+                  <div className="roll-n"><span>{r.child}</span>{a && <small>Avisado {hora(a.sentAt)} · {TIPOS[a.tipo].toLowerCase()}</small>}</div>
+                  <div className="seg" role="radiogroup" aria-label={`Asistencia de ${r.child}`}>
+                    {opts.map(([k, l, full]) => (
+                      <button key={k} type="button" role="radio" aria-checked={marks[r.id] === k} aria-label={full} disabled={!editing} className={marks[r.id] === k ? "on " + k : ""} onClick={() => setMarks({ ...marks, [r.id]: k })}>{l}</button>
+                    ))}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="dock">
+            {editing ? <button type="button" className="btn" onClick={save}>Guardar asistencia · {count("presente")} presentes</button>
+              : <button type="button" className="btn ghost" onClick={() => setEditing(true)}>Corregir asistencia</button>}
+          </div>
+        </>
+      )}
     </>
   );
 }
