@@ -256,7 +256,9 @@ def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=
     band = (f"M{lt[0]:.2f} {lt[1]:.2f}L{lb[0]:.2f} {lb[1]:.2f}"
             f"C{c1[0]:.2f} {c1[1]:.2f} {c2[0]:.2f} {c2[1]:.2f} {rb[0]:.2f} {rb[1]:.2f}"
             f"L{rt[0]:.2f} {rt[1]:.2f}Z")
-    if fit is not None and front is not None:
+    if trim == "none":
+        pass                 # no band: the top of the C is the head under the board
+    elif fit is not None and front is not None:
         # cap in FRONT: band reaches down over the C and ends on a curve parallel to the
         # C's own top (the C's outline shifted down by `front`), knockout line cuts the letter
         from shapely.geometry import Polygon
