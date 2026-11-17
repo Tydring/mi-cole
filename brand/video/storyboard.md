@@ -1,4 +1,4 @@
-# miCole logo promo: storyboard v1 (awaiting approval)
+# miCole logo promo: storyboard v1 (approved 2026-11-17; silent prototype rendered)
 
 PIECE: logo sting / teaser, prototype   LENGTH: 8 s   RATIO: 9:16 (1080x1920) first, 16:9 and 1:1 after approval
 LEVEL: 1 (flat motion, drawn in code from the real logo file)   LANGUAGE: Venezuelan Spanish

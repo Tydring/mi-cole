@@ -1,0 +1,96 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>miCole sting</title>
+<style>
+@font-face{font-family:"Brico";src:url("bricolage700.ttf") format("truetype");font-weight:700}
+:root{--paper:#F5EFE3;--ink:#17363A;--mango:#E59A2F}
+html,body{margin:0;background:var(--paper)}
+#frame{width:1080px;height:1920px;position:relative;overflow:hidden;background:var(--paper)}
+#stage{position:absolute;left:0;top:0;width:1080px;height:1920px;transform-origin:0 0}
+svg{position:absolute;left:0;top:0}
+.ink{fill:var(--ink)}.gap{stroke:var(--paper)}.acc{fill:var(--mango)}.acc-s{stroke:var(--mango)}
+.lines{position:absolute;left:0;width:1080px;font-family:"Brico";font-weight:700;color:var(--ink);text-align:center;letter-spacing:-0.01em}
+.line{display:flex;justify-content:center;gap:0.26em;white-space:nowrap}
+.w{display:inline-block;opacity:0;will-change:transform}
+#tag{top:1110px;font-size:66px;line-height:1.18}
+#cta{top:1110px;font-size:60px;line-height:1.2}
+#cta .pill{display:inline-block;background:var(--mango);color:var(--ink);border-radius:999px;padding:16px 40px;font-size:50px;margin-top:26px}
+</style></head><body>
+<div id="frame"><div id="stage">
+<svg width="1080" height="1920" viewBox="0 0 1080 1920">
+ <defs><mask id="cmask" maskUnits="userSpaceOnUse" x="-2000" y="-2000" width="5000" height="5000">
+   <path id="csweep" fill="none" stroke="#fff" pathLength="1" stroke-dasharray="1 1"/></mask></defs>
+ <g id="place">/*LOGO*/</g>
+</svg>
+<div class="lines" id="tag"><div class="line"><span class="w">Lo</span><span class="w">que</span><span class="w">pasa</span><span class="w">en</span><span class="w">el</span><span class="w">aula,</span></div>
+<div class="line"><span class="w">llega</span><span class="w">a</span><span class="w">la</span><span class="w">casa.</span></div></div>
+<div class="lines" id="cta"><div class="line"><span class="w">Muy</span><span class="w">pronto.</span></div>
+<div class="line"><span class="w pill">Agenda una conversación</span></div></div>
+</div></div>
+<script>
+const D=/*DATA*/;
+const $=id=>document.getElementById(id);
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const seg=(t,a,b)=>clamp((t-a)/(b-a));
+const io=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;      // ease in-out cubic
+const out=x=>1-Math.pow(1-x,3);                         // ease out cubic
+const inq=x=>x*x;                                       // ease in (gravity)
+const back=x=>{const c=1.6;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)}; // gentle overshoot
+const lerp=(a,b,k)=>a+(b-a)*k;
+// place the wordmark: 860 px wide, centered at (540, 900)
+const [vx,vy,vw,vh]=D.vb, S=860/vw, LX=540-S*(vx+vw/2), LY=880-S*(vy+vh/2);
+$("place").setAttribute("transform",`translate(${LX} ${LY}) scale(${S})`);
+const L=(x,y)=>[LX+S*x,LY+S*y];
+const [bx,by]=D.btn, [ex,ey]=D.edge;
+// C geometry for the draw-on sweep
+const cb=$("C").getBBox(), ccx=cb.x+cb.width/2, ccy=cb.y+cb.height/2, cr=Math.max(cb.width,cb.height)*0.36;
+const a0=-6*Math.PI/180, a1=6*Math.PI/180;
+$("csweep").setAttribute("d",`M${ccx+cr*Math.cos(a0)} ${ccy+cr*Math.sin(a0)}A${cr} ${cr} 0 1 0 ${ccx+cr*Math.cos(a1)} ${ccy+cr*Math.sin(a1)}`);
+$("csweep").setAttribute("stroke-width",cb.width*0.62);
+const wb=document.querySelector("#place").getBBox();
+const markC=[ccx, (cb.y+by)/2];             // centre of the capped C, logo units
+const wordC=[wb.x+wb.width/2, wb.y+wb.height/2];
+const tagW=[...document.querySelectorAll("#tag .w")], ctaW=[...document.querySelectorAll("#cta .w")];
+const letters={m:3.62,i:3.70,o:3.82,l:3.90,e:3.98};
+
+function render(t){
+  // ---- cap: unfold level, tip, fall, settle
+  const drop=-95;                                       // cap starts above its seat
+  let dy = t<2.0? drop : t<3.0? lerp(drop,0,inq(seg(t,2.0,3.0))) : 2.2*Math.sin(Math.PI*seg(t,3.0,3.3));
+  const rot = 18*(1-io(seg(t,2.0,2.8)));                // level -> final 18 deg tilt
+  $("cap").setAttribute("transform",`translate(0 ${dy}) rotate(${rot} ${bx} ${by})`);
+  $("btn").setAttribute("transform",`translate(${bx} ${by}) scale(${back(seg(t,0.05,0.65))}) translate(${-bx} ${-by})`);
+  $("cord1").style.strokeDasharray="1 1"; $("cord1").style.strokeDashoffset=1-out(seg(t,1.0,1.4));
+  const sy=out(seg(t,1.3,2.0));
+  $("boardg").setAttribute("transform",`rotate(-18 ${bx} ${by}) translate(0 ${by}) scale(1 ${Math.max(sy,0.0001)}) translate(0 ${-by}) rotate(18 ${bx} ${by})`);
+  $("boardg").style.opacity=sy>0?1:0;
+  $("bandg").style.opacity=io(seg(t,2.0,2.25));
+  // tassel: grows down as the cap tips, then swings twice and settles
+  const grow=out(seg(t,2.0,2.6)); const k=t-3.0;
+  const sw = t<3.0? -8*grow : Math.exp(-2.6*k)*(30*Math.sin(8.2*k) - 8*Math.cos(8.2*k));
+  $("tassel").setAttribute("transform",`rotate(${sw} ${ex} ${ey}) translate(${ex} ${ey}) scale(1 ${Math.max(grow,0.0001)}) translate(${-ex} ${-ey})`);
+  $("tassel").style.opacity=grow>0?1:0;
+  // ---- C draws itself under the falling cap
+  $("csweep").style.strokeDashoffset=1-io(seg(t,2.05,3.0));
+  $("Cg").style.opacity = t<2.05?0:1;
+  if(t>=3.0) $("Cg").removeAttribute("mask"); else $("Cg").setAttribute("mask","url(#cmask)");
+  // ---- the rest of the word rises in
+  for(const [id,st] of Object.entries(letters)){const p=out(seg(t,st,st+0.45));
+    $(id).style.opacity=clamp(p*2.2); $(id).setAttribute("transform",`translate(0 ${32*(1-p)})`);}
+  // ---- words of the tagline, then swap for the CTA
+  const leave=io(seg(t,6.6,7.0));
+  tagW.forEach((w,i)=>{const p=out(seg(t,4.7+i*0.12,4.7+i*0.12+0.4));
+    w.style.opacity=p*(1-leave); w.style.transform=`translateY(${(1-p)*40-leave*60}px)`;});
+  ctaW.forEach((w,i)=>{const p=out(seg(t,6.85+i*0.14,6.85+i*0.14+0.45));
+    w.style.opacity=p; w.style.transform=`translateY(${(1-p)*44}px)`;});
+  // ---- camera: follow the button, then the capped C, then pull back to the word; always drifting in
+  const btnNow=[bx, by+dy];
+  let f, z;
+  if(t<2.0){ f=btnNow; z=lerp(2.9,2.6,seg(t,0,2.0)); }
+  else if(t<3.4){ const k2=io(seg(t,2.0,3.0)); f=[lerp(btnNow[0],markC[0],k2), lerp(btnNow[1],markC[1],k2)]; z=lerp(2.6,2.2,seg(t,2.0,3.4)); }
+  else { const k3=io(seg(t,3.4,4.6)); f=[lerp(markC[0],wordC[0],k3), lerp(markC[1],wordC[1],k3)]; z=lerp(2.2,1.0,k3)+0.05*seg(t,4.6,8.0); }
+  const [fx,fy]=L(...f);
+  const ty = t<3.4? 960 : lerp(960,880,io(seg(t,3.4,4.6)));   // vertical centre of interest
+  $("stage").style.transform=`translate(540px,${ty}px) scale(${z}) translate(${-fx}px,${-fy}px)`;
+  // after the pull-back, keep the text block in frame: text lives in stage coords below the word
+}
+window.render=render; render(0);
+</script></body></html>
