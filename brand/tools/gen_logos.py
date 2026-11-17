@@ -242,7 +242,7 @@ def rounded_poly(pts, r):
     return d + "Z"
 
 
-def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=0.42, tassel_len=0.27, fit=None, front=None, trim=None, ringw=0.11):
+def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=0.42, tassel_len=0.27, fit=None, front=None, trim=None, ringw=0.11, soften=0.0, bwl=None):
     """Drawn-with-care mortarboard. One cut-line width k (x W) everywhere."""
     def T(u, v):
         rx, ry = rot(u * W, v * W, ang)
@@ -250,9 +250,10 @@ def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=
     g = W * k
     out, pts = [], []
     # band: tapered sides, bottom edge a smooth cubic that echoes the bowl of the C
-    lt, rt = T(-bw, 0.0), T(bw, 0.0)
-    lb, rb = T(-bw * 0.93, depth * 0.62), T(bw * 0.93, depth * 0.62)
-    c1, c2 = T(-bw * 0.62, depth * 1.12), T(bw * 0.62, depth * 1.12)
+    bl = bw if bwl is None else bwl   # left half-width can be pulled in on its own
+    lt, rt = T(-bl, 0.0), T(bw, 0.0)
+    lb, rb = T(-bl * 0.93, depth * 0.62), T(bw * 0.93, depth * 0.62)
+    c1, c2 = T(-bl * 0.62, depth * 1.12), T(bw * 0.62, depth * 1.12)
     band = (f"M{lt[0]:.2f} {lt[1]:.2f}L{lb[0]:.2f} {lb[1]:.2f}"
             f"C{c1[0]:.2f} {c1[1]:.2f} {c2[0]:.2f} {c2[1]:.2f} {rb[0]:.2f} {rb[1]:.2f}"
             f"L{rt[0]:.2f} {rt[1]:.2f}Z")
@@ -293,6 +294,9 @@ def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=
             carved = carved.intersection(sbox(fit.bounds[0] + g * 0.5, -1e4, 1e4, 1e4))
         elif trim == "ring": # band is an even ring hugging the C, like a hatband on a head
             carved = carved.intersection(fit.buffer(g + W * ringw, join_style=1, resolution=32))
+        if soften:           # round off sharp corners: points become soft curves
+            r_ = W * soften
+            carved = carved.buffer(-r_, join_style=1, resolution=24).buffer(r_, join_style=1, resolution=24)
         parts_ = [p for p in getattr(carved, "geoms", [carved]) if p.area > (W * 0.04) ** 2]
         carved = unary_union(parts_)
         out.append(f'<path class="ink" d="{geom_d(carved)}"/>')

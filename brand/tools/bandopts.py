@@ -1,9 +1,10 @@
 import copy
 import gen_logos as G
 base = [t for t in G.TAKES if t["id"] == "pizarra"][0]
-opts = [("Now (with band)", "The current version, for comparison.", {}, None),
-        ("No band, resting", "The board sits on top of the C. Only two shapes: the board and the letter.", {"trim": "none"}, 0.26),
-        ("No band, worn (my pick)", "The board presses slightly into the top of the C, with the cut line between them. Reads most like a cap on a head.", {"trim": "none"}, 0.32)]
+opts = [("Now", "The current band, with the sharp triangle on the left.", {}, None),
+        ("Soft", "Corners rounded. Same size, the point becomes a curve.", {"soften": 0.03}, None),
+        ("Softer", "Rounder, and the left side of the band pulled in a little so the piece is shorter.", {"soften": 0.04, "bwl": 0.32}, None),
+        ("Softest (my pick)", "The triangle becomes a short rounded tuck against the shoulder of the C. The band still wraps the letter.", {"soften": 0.05, "bwl": 0.29}, None)]
 L = {"bg": "#F5EFE3", "ink": "#17363A", "acc": "#E59A2F"}; D = {"bg": "#10282B", "ink": "#F5EFE3", "acc": "#E59A2F"}
 th = lambda t: f'--bg:{t["bg"]};--ink:{t["ink"]};--acc:{t["acc"]};background:{t["bg"]};color:{t["ink"]}'
 sec = ""
@@ -20,5 +21,5 @@ section{{background:#fff;border:1px solid #d6d3cb;border-radius:18px;padding:20p
 .ink{{fill:var(--ink)}}.gap{{stroke:var(--bg)}}.acc{{fill:var(--acc)}}.acc-s{{stroke:var(--acc)}}
 .row{{display:grid;grid-template-columns:200px 1fr 1fr;gap:12px}}.tile{{border-radius:12px;padding:20px;display:grid;place-items:center}}.tile svg{{width:100%;max-width:330px;height:auto}}.mk svg{{max-width:170px}}
 @media (max-width:760px){{.row{{grid-template-columns:1fr}}}}</style></head><body><main>
-<h1>Dropping the band</h1><p>Same board, position, tilt and tassel. The band under the board is gone; the top of the C is the head.</p>{sec}</main></body></html>'''
+<h1>Softening the band</h1><p>Same cap, position, tilt and tassel. Only the left end of the band changes.</p>{sec}</main></body></html>'''
 open("/home/user/mi-cole/logo-band-options.html", "w").write(html)
