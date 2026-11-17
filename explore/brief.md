@@ -89,7 +89,18 @@ Guayaba (#D4614A) is not used on this page. Status colors for the app (present, 
 The main action appears three times: nav, hero and closing.
 
 **Motion.**
-- **The only real moment:** the thread along the school day.
+- **Intro (added 2026-11-17, Christian's pick, option 1):** on first load, the logo animation from the promo video plays as code, with no video file.
+  - **What plays:** the mango dot, the cap landing on the C, then "miCole" forming.
+  - **Timing:** played at 1.4x speed, about 3.4 s, then it fades into the page.
+  - **Weight:** about 8 KB gzipped, with nothing extra to download.
+  - **Rules:**
+    - It shows only on the first visit (remembered in the browser, wrapped in a safe try/catch).
+    - Tap anywhere or "Saltar" skips it.
+    - It is skipped automatically with reduced motion or without JavaScript.
+    - It never lasts more than 7 s.
+    - The page content underneath is already rendered and readable.
+  - **Rejected:** the real video (option 2). It is about 950 KB and failed to load in Christian's own preview.
+- **The page's one real moment:** the thread along the school day. (The intro belongs to the logo, the thread belongs to the page.)
   - **Trigger:** each stop entering the screen (IntersectionObserver), so the scroll is never pinned or hijacked.
   - **Animation:** only transform and opacity, or the SVG stroke-dashoffset. About 400 ms per step, ease-out.
   - **Resting state:** fully drawn.
