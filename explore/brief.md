@@ -65,7 +65,12 @@ Guayaba (#D4614A) is not used on this page. Status colors for the app (present, 
    - A margin note in Tiza with a Mango rule: "Para directores de colegios en Caracas...".
    - The main button, plus a status line: a Mango dot and "miCole está en construcción".
    - No phone and no image, so the first screen is just type and paints instantly.
-2. **The problem, as a letter:** one large paragraph about WhatsApp groups, the teacher's personal number, messages at any hour, and circulares that may have stayed in the morral, which makes it hard for teachers, parents and directors to feel part of the same thing. It ends in bold: "un lugar del colegio, no del teléfono de alguien. Un lugar donde el colegio sea una comunidad."
+2. **The problem, as a letter:** one large paragraph on how school communication is scattered, which makes it hard for teachers, parents and directors to feel part of the same thing:
+   - circulares in an email few people open
+   - homework on another platform with another account and password
+   - everything else in WhatsApp groups on the teacher's personal number
+   - nobody knows who read what
+   - a question about a circular turns into an email chain and a meeting It ends in bold: "un lugar del colegio, no del teléfono de alguien. Un lugar donde el colegio sea una comunidad."
 3. **A school day (the signature):** "Un día de colegio, contado a la casa."
    - Four stops on the thread: 7:15 asistencia, 9:30 lo que pasó en clase, 11:00 circular, 13:00 tarea.
    - Each stop has a small drawn phone showing one card.
@@ -102,9 +107,9 @@ Everything about the product is in future tense, from the founder's point of vie
   - It will be built around lapsos, boletines, 1 to 20 grading and secciones, for mid-range Android phones.
   - "Se podrá publicar sin conexión; se enviará cuando vuelva el internet."
 - **"Lo que estamos explorando"** (shown as ideas, never as features):
+  - no passwords to forget (for example QR sign-up)
+  - knowing which representantes read a circular
   - automatic posts to the school's own Instagram of whatever the school chooses to share, with the families' permission, so teachers and directors do not do the work twice
-  - QR sign-up for representantes
-  - knowing which representantes saw a circular
   - each school choosing whether it uses grades and attendance
 - **Never on the page:**
   - "gratis" or any price
@@ -123,6 +128,14 @@ Everything about the product is in future tense, from the founder's point of vie
 - **Meta and sharing:** title, description, share image (built from the logo and headline), favicon set and theme color.
 - **Verification:** in a browser at 390, 820 and 1440 px, plus a slow-phone simulation (CPU throttled 4x, slow 3G). The signature has to run smoothly there.
 - **Nothing goes online** without an explicit "proceed".
+
+## PRODUCT CONTEXT FROM CHRISTIAN (2026-11-17)
+- **Circulares today:** in his school they go by email (Outlook) to the parents' school email. Few read them, nobody knows who read them, and replies happen by email and often end in a meeting with the director.
+- **Two systems:** the school also uses Google Classroom, so families juggle two emails and two passwords, and kids lose theirs.
+- **Email in the plan:**
+  - **At launch:** miCole sends circulares to its feed and also by email, as today. The page commits to this.
+  - **Eventually:** replace email for circulares. Not stated on the page.
+- **Unconfirmed:** whether email circulares are the norm across Caracas private schools. Christian assumes so. The page says "en un correo que pocos abren" without claiming every school works this way.
 
 ## PLACEHOLDERS SO FAR
 1. ~~[CORREO PENDIENTE]~~ Done: churtado96@gmail.com.
