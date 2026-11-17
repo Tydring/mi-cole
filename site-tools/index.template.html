@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>miCole · Lo que pasa en el aula, llega a la casa</title>
+<meta name="description" content="miCole será la plataforma de comunicación de su colegio: un lugar del colegio, no del teléfono de alguien. En construcción, en Caracas.">
+<meta name="theme-color" content="#F5EFE3">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_VE">
+<meta property="og:title" content="miCole · Lo que pasa en el aula, llega a la casa">
+<meta property="og:description" content="La plataforma de comunicación que miCole está construyendo para colegios en Venezuela. Conversemos.">
+<!-- PLACEHOLDER [DOMINIO]: once the domain exists, make og:image an absolute URL (https://<dominio>/assets/og.png) and add og:url and a canonical link -->
+<meta property="og:image" content="assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preload" href="assets/bricolage700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/bricolage400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script>/* first visit only, never with reduced motion: show the logo intro. Without JavaScript nothing is hidden. */
+try{if(!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)&&!localStorage.getItem('micole-intro'))document.documentElement.classList.add('intro')}catch(e){}</script>
+<script src="script.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<div id="intro" aria-hidden="true">
+<!--INTRO_SVG-->
+<button type="button" tabindex="-1">Saltar</button>
+</div>
+<script type="application/json" id="intro-data"><!--INTRO_DATA--></script>
+
+<header class="hero">
+  <div class="wrap">
+    <nav class="nav" aria-label="Principal">
+      <img src="assets/micole-wordmark-light.svg" alt="miCole" width="740" height="256">
+      <a class="btn" href="#conversemos">Escríbame</a>
+    </nav>
+    <div class="grid">
+      <h1>Lo que pasa en el aula, llega a la <em>casa.</em></h1>
+      <p class="note">Para directores de colegios en Caracas. Una nota sobre cómo se comunica su colegio con las familias, y cómo podría hacerlo.</p>
+    </div>
+    <div class="actions">
+      <a class="btn" href="https://wa.me/584242799280?text=Hola%20Christian%2C%20soy%20director(a)%20de%20un%20colegio%20y%20quiero%20conversar%20sobre%20miCole.">Escríbame por WhatsApp</a>
+      <a class="alt" href="mailto:churtado96@gmail.com?subject=miCole">o por correo</a>
+      <span class="status">miCole está en construcción</span>
+    </div>
+  </div>
+</header>
+
+<main id="contenido">
+<section class="letter" aria-label="Por qué miCole">
+  <div class="wrap">
+    <p class="rv">Hoy, la comunicación entre su colegio y las casas está repartida: circulares en un correo que pocos abren y tareas en otra plataforma, con otra cuenta y otra contraseña. Nadie sabe quién leyó qué, y una duda sobre una circular termina en una cadena de correos y una reunión. Así es difícil que docentes, representantes y directivos se sientan parte de lo mismo. <strong>miCole será otra cosa: un lugar del colegio, no del teléfono de alguien. Un lugar donde el colegio sea una comunidad.</strong></p>
+  </div>
+</section>
+
+<section class="day" aria-labelledby="dia">
+  <div class="wrap">
+    <p class="label">Cómo funcionará</p>
+    <h2 id="dia" class="rv">Un día de colegio, contado a la casa.</h2>
+    <p class="lede">Así se verá un día con miCole. Los docentes publicarán desde su teléfono, en vez de repartirlo entre correos y plataformas, y cada representante verá lo de su hijo.</p>
+    <div class="track">
+      <div class="thread" aria-hidden="true"><svg viewBox="0 0 24 100" preserveAspectRatio="none" focusable="false">
+        <line x1="12" y1="0" x2="12" y2="100" stroke="#A9C2B4" stroke-width="3"/>
+        <line class="on" pathLength="1" x1="12" y1="0" x2="12" y2="100" stroke="#E59A2F" stroke-width="5" stroke-linecap="round"/>
+      </svg></div>
+      <ol class="stops">
+        <li class="stop lit">
+          <div><span class="hr">7:15</span><h3>Asistencia</h3><p>El docente pasa la asistencia desde su teléfono, en la sección.</p></div>
+          <figure class="fig"><div class="phone" aria-hidden="true"><div class="scr"><div class="bar">miCole</div><div class="card"><b>Asistencia · 4to A</b>Pasada a las 7:15 a.m.</div></div></div><figcaption class="small">Ilustración del concepto</figcaption></figure>
+        </li>
+        <li class="stop lit">
+          <div><span class="hr">9:30</span><h3>Lo que pasó en clase</h3><p>Una línea sobre lo que hicieron hoy. El representante la ve en la casa.</p></div>
+          <figure class="fig"><div class="phone" aria-hidden="true"><div class="scr"><div class="bar">miCole</div><div class="card"><b>Momento del día · 4to A</b>Hoy sembramos caraotas en vasitos. Mañana medimos cuánto crecieron.</div></div></div><figcaption class="small">Ilustración del concepto</figcaption></figure>
+        </li>
+        <li class="stop lit">
+          <div><span class="hr">11:00</span><h3>Una circular del colegio</h3><p>La dirección la publica una vez en miCole. Al principio también saldrá por correo, como hoy, para que ninguna familia se quede por fuera.</p></div>
+          <figure class="fig"><div class="phone" aria-hidden="true"><div class="scr"><div class="bar">miCole</div><div class="card"><b>Circular · Dirección</b>Reunión de representantes el jueves, 7:00 a.m.</div></div></div><figcaption class="small">Ilustración del concepto</figcaption></figure>
+        </li>
+        <li class="stop lit">
+          <div><span class="hr">13:00</span><h3>La tarea, a la casa</h3><p>Lo que hay que traer mañana, sin depender de la agenda en el morral.</p></div>
+          <figure class="fig"><div class="phone" aria-hidden="true"><div class="scr"><div class="bar">miCole</div><div class="card"><b>Tarea · 4to A</b>Traer una hoja de árbol para Ciencias.</div></div></div><figcaption class="small">Ilustración del concepto</figcaption></figure>
+        </li>
+      </ol>
+    </div>
+    <p class="small">Día de ejemplo. Las pantallas son ilustraciones: miCole todavía no existe como app.</p>
+  </div>
+</section>
+
+<section class="here" aria-labelledby="aqui">
+  <div class="wrap">
+    <p class="label">Hecha para colegios de aquí</p>
+    <h2 id="aqui" class="rv">Pensada para su colegio, no para otro país.</h2>
+    <ol class="promises">
+      <li class="rv"><span class="n">01</span><h3>Sin WhatsApp, sin números personales.</h3><p>Nadie tendrá que abrir un grupo ni compartir su número: la comunicación vivirá en miCole.</p></li>
+      <li class="rv"><span class="n">02</span><h3>Habla como su colegio.</h3><p>Lapsos, boletines, notas del 1 al 20 y secciones.</p></li>
+      <li class="rv"><span class="n">03</span><h3>Para el teléfono que la gente tiene.</h3><p>Pensada para teléfonos Android de gama media, livianos y con poco espacio.</p></li>
+      <li class="rv"><span class="n">04</span><h3>Cuando falla la luz o el internet.</h3><p>Se podrá publicar sin conexión; se enviará cuando vuelva el internet.</p></li>
+    </ol>
+    <div class="explore rv">
+      <div><p class="label">Lo que estamos explorando</p><h3>Ideas que todavía no prometemos.</h3></div>
+      <ul>
+        <li>Que lo que el colegio decida compartir se publique solo en el Instagram del colegio, con el permiso de las familias, para que docentes y directivos no tengan que hacer el trabajo dos veces.</li>
+        <li>Que nadie dependa de contraseñas que se olvidan: por ejemplo, que los representantes entren escaneando un código QR.</li>
+        <li>Saber qué representantes ya leyeron una circular, para no tener que preguntar.</li>
+        <li>Que cada colegio elija si usa notas y asistencia dentro de miCole.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="who" aria-labelledby="quien">
+  <div class="wrap">
+    <p class="label" id="quien">Quién está detrás</p>
+    <div class="grid rv">
+      <picture><source srcset="assets/christian.webp" type="image/webp"><img src="assets/christian.jpg" width="520" height="650" alt="Christian Corrie, fundador de miCole" loading="lazy" decoding="async"></picture>
+      <div>
+        <blockquote>"Soy psicólogo clínico y docente de sexto grado en un colegio de Caracas. miCole nace de una necesidad: acercar a docentes, representantes y directivos, que se involucren más con el colegio y que adentro se forme una comunidad de verdad."</blockquote>
+        <p class="sig">Christian Corrie<span>Fundador de miCole</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="close" id="conversemos">
+  <div class="wrap">
+    <div class="grid">
+      <div>
+        <p class="label">En construcción</p>
+        <h2>¿Lo conversamos?</h2>
+        <p>miCole todavía está en construcción. Estoy conversando con directores para construirla con lo que de verdad necesitan los colegios. Escríbame y buscamos un momento.</p>
+        <div class="actions">
+          <a class="btn" href="https://wa.me/584242799280?text=Hola%20Christian%2C%20soy%20director(a)%20de%20un%20colegio%20y%20quiero%20conversar%20sobre%20miCole.">Escríbame por WhatsApp</a>
+          <a class="alt" href="mailto:churtado96@gmail.com?subject=miCole">o por correo</a>
+        </div>
+      </div>
+      <div class="contact">
+        <div><b>WhatsApp:</b> <a href="https://wa.me/584242799280">+58 424 279 9280</a></div>
+        <div><b>Correo:</b> <a href="mailto:churtado96@gmail.com?subject=miCole">churtado96@gmail.com</a></div>
+      </div>
+    </div>
+    <div class="foot"><img src="assets/micole-wordmark-dark.svg" alt="miCole" width="740" height="256" loading="lazy"><span>Caracas, Venezuela</span></div>
+  </div>
+</footer>
+</body>
+</html>
