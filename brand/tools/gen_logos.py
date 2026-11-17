@@ -242,7 +242,7 @@ def rounded_poly(pts, r):
     return d + "Z"
 
 
-def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=0.42, tassel_len=0.27, fit=None):
+def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=0.42, tassel_len=0.27, fit=None, front=None):
     """Drawn-with-care mortarboard. One cut-line width k (x W) everywhere."""
     def T(u, v):
         rx, ry = rot(u * W, v * W, ang)
@@ -256,7 +256,26 @@ def cap_refined(cx, cy, W, ang, flat=0.17, bw=0.34, depth=0.31, k=0.042, attach=
     band = (f"M{lt[0]:.2f} {lt[1]:.2f}L{lb[0]:.2f} {lb[1]:.2f}"
             f"C{c1[0]:.2f} {c1[1]:.2f} {c2[0]:.2f} {c2[1]:.2f} {rb[0]:.2f} {rb[1]:.2f}"
             f"L{rt[0]:.2f} {rt[1]:.2f}Z")
-    if fit is not None:
+    if fit is not None and front is not None:
+        # cap in FRONT: band reaches down over the C and ends on a curve parallel to the
+        # C's own top (the C's outline shifted down by `front`), knockout line cuts the letter
+        from shapely.geometry import Polygon
+        from shapely import affinity
+        deep = depth * 2.2
+        lb2, rb2 = T(-bw * 0.93, deep * 0.62), T(bw * 0.93, deep * 0.62)
+        d1, d2 = T(-bw * 0.62, deep * 1.12), T(bw * 0.62, deep * 1.12)
+        box = Polygon([lt, lb2] + sample_path_pts(lb2, d1, d2, rb2)[1:] + [rt]).buffer(0)
+        hull = affinity.translate(fit.convex_hull, 0, front)
+        from shapely.geometry import box as sbox
+        top = fit.bounds[1]
+        above = sbox(-1e4, -1e4, 1e4, top + g * 0.5)
+        crown = fit.convex_hull.buffer(g * 0.9, join_style=1, resolution=24)
+        band_g = box.intersection(above.union(crown)).difference(hull)
+        parts_ = [p for p in getattr(band_g, "geoms", [band_g]) if p.area > (W * 0.04) ** 2]
+        from shapely.ops import unary_union
+        band_g = unary_union(parts_)
+        out.append(f'<path class="ink gap" stroke-width="{g:.2f}" paint-order="stroke" stroke-linejoin="round" d="{geom_d(band_g)}"/>')
+    elif fit is not None:
         # carve the letter (grown by the cut width) out of the band: the band's underside
         # then follows the exact curve of the C with an even gap all the way along
         from shapely.geometry import Polygon
@@ -388,7 +407,7 @@ def build_take(cfg):
     if cfg.get("refined"):
         r = cfg["refined"]
         fitpoly = L.polygon(L.cmap[ord("C")], C["x"]) if cfg.get("fit") else None
-        cap, cpts = cap_refined(ccx, ccy, capW, cfg["cap_angle"], fit=fitpoly, **r)
+        cap, cpts = cap_refined(ccx, ccy, capW, cfg["cap_angle"], fit=fitpoly, front=cfg.get("front"), **r)
     elif cfg.get("fused"):
         f = dict(cfg["fused"]); f["W"] = cw * f["Wk"]; f["gap"] = f["W"] * 0.03
         cap, cpts = fused_cap(C["x"], f)

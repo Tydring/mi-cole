@@ -1,15 +1,15 @@
 import copy
 import gen_logos as G
 base = [t for t in G.TAKES if t["id"] == "pizarra"][0]
-opts = [("Now (round 12)", "Cap raised, band wraps the top of the C.", 0.08),
-        ("Grip +1", "Cap lowered a step, band wraps further over the shoulder.", 0.15),
-        ("Grip +2", "Cap lowered two steps, band pulled well down over the C.", 0.22)]
+opts = [("Light grip", "The cap covers the top 14% of the C. The cut runs parallel to the curve of the letter.", 0.08, 0.14),
+        ("Medium grip (my pick)", "The cap covers the top 20% of the C. Clearly worn, the C still reads at a glance.", 0.12, 0.20),
+        ("Deep grip", "The cap covers the top 26% of the C. Pulled down low, the most hat, the least C.", 0.16, 0.26)]
 L = {"bg": "#F5EFE3", "ink": "#17363A", "acc": "#E59A2F"}
 D = {"bg": "#10282B", "ink": "#F5EFE3", "acc": "#E59A2F"}
 th = lambda t: f'--bg:{t["bg"]};--ink:{t["ink"]};--acc:{t["acc"]};background:{t["bg"]};color:{t["ink"]}'
 sec = ""
-for title, note, seat in opts:
-    c = copy.deepcopy(base); c["seat"] = seat
+for title, note, seat, cov in opts:
+    c = copy.deepcopy(base); c["seat"] = seat; c["front"] = cov * 140
     v = G.build_take(c)
     sec += f'''<section><h2>{title}</h2><p>{note}</p><div class="row">
 <div class="tile" style="{th(L)}">{v["wordmark"]}</div><div class="tile" style="{th(D)}">{v["wordmark"]}</div>
@@ -26,5 +26,5 @@ section{{background:#fff;border:1px solid #d6d3cb;border-radius:18px;padding:20p
 .nav{{margin-top:10px;padding:12px 16px;border-radius:10px}}.n svg{{height:30px;width:auto;display:block}}
 @media (max-width:760px){{.row{{grid-template-columns:1fr 1fr}}.icon{{width:150px}}}}
 </style></head><body><main><h1>How hard the cap grips the C</h1>
-<p>Same cap, tilt and fitted cut line in all three. Only the depth changes.</p>{sec}</main></body></html>'''
+<p>The cap now sits in front of the C and wears it: the top of the letter becomes the crown of the cap, and the cut runs parallel to the curve of the C. Same cap and tilt in all three. Only the depth changes.</p>{sec}</main></body></html>'''
 open("/home/user/mi-cole/logo-grip-options.html", "w").write(html)
