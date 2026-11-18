@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, createContext, useContext } from "react";
 import { useDemo, useNow, demoNow } from "./store.js";
 import {
   SECCIONES, TOTAL, DEMO_REP, DEMO_CHILD, EJEMPLO, DOCENTE, CLOSE_OPTIONS,
   repsFor, repById, readAt, readStats, cuando, hora, horaMin, audienceLabel, seccionById, isOpen, deliverAt, cuandoLlega,
-  MATERIAS, ILUS, SIN_PERMISO, TIPOS, MOTIVOS, ESTADOS, dayKey, keyToTs, schoolDayFrom, isSchoolDayKey, dayLabel,
+  BRAND_COLORS, brandTokens, MATERIAS, ILUS, SIN_PERMISO, TIPOS, MOTIVOS, ESTADOS, dayKey, keyToTs, schoolDayFrom, isSchoolDayKey, dayLabel,
 } from "./data.js";
 
 const ROLES = [
@@ -23,6 +23,7 @@ const CLOCKS = [
   { id: "manana", label: "Día siguiente, 7:05 a.m." },
 ];
 const MARK = "/demo/icons/micole-mark-light.svg";
+const Brand = createContext({ name: "Colegio Demo", color: "", logo: "" });
 const visibleToRep = (c) => c.audience === "all" || c.audience === "4A";
 const repName = (id) => `Rep. de ${repById(id).child}`;
 
@@ -82,6 +83,9 @@ export default function App() {
   };
 
   const ctx = { ...demo, push, replace, back, say };
+  const bt = brandTokens(state.brand.color);
+  const brandStyle = { "--acc": bt.acc, "--acc-ink": bt.ink, "--acc-text": bt.text };
+  useEffect(() => { document.title = `${state.brand.name} · miCole`; }, [state.brand.name]);
   const tab = tabs[role];
   const atHome = stack.length === 0;
   const showTabs = atHome && TABS[role].length > 1;
@@ -94,6 +98,7 @@ export default function App() {
   else if (tab === "tareas" && atHome) view = role === "docente" ? <DocTareas ctx={ctx} /> : <RepTareas ctx={ctx} />;
   else if (role === "direccion") {
     if (screen.name === "compose") view = <DirCompose ctx={ctx} />;
+    else if (screen.name === "brand") view = <BrandEdit ctx={ctx} />;
     else if (screen.name === "circular") view = <DirCircular ctx={ctx} id={screen.id} />;
     else if (screen.name === "seccion") view = <DirSeccion ctx={ctx} id={screen.id} sec={screen.sec} />;
     else if (screen.name === "aviso") view = <DirAviso ctx={ctx} id={screen.id} />;
@@ -106,7 +111,8 @@ export default function App() {
   } else view = tab === "mensajes" ? <DocMensajes ctx={ctx} /> : <DocAsistencia ctx={ctx} />;
 
   return (
-    <div className={showTabs ? "with-tabs" : ""}>
+    <Brand.Provider value={state.brand}>
+    <div className={showTabs ? "with-tabs" : ""} style={brandStyle}>
       <DemoBar role={role} setRole={setRole} pings={pings} onReset={reset} clock={state.clock} now={now} setClock={setClock} />
       <main className="app" key={role + tab + stack.length}>{view}</main>
       {showTabs && (
@@ -122,6 +128,7 @@ export default function App() {
       )}
       <div className={"toast" + (toast ? " on" : "")} role="status" aria-live="polite">{toast}</div>
     </div>
+    </Brand.Provider>
   );
 }
 
@@ -171,13 +178,17 @@ const IconCam = svg(<><path d="M4 8h3l2-2.5h6L17 8h3v11H4z" /><circle cx="12" cy
 const IconImg = svg(<><rect x="3.5" y="5" width="17" height="14" rx="2.5" /><circle cx="9" cy="10" r="1.8" /><path d="m4 17 5-4.5 4 3.5 3-2.5 4 3.5" /></>);
 const IconHeart = svg(<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" />, 20);
 const IconBook = svg(<><path d="M5 4.5h10.5a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z" /><path d="M5 17a3 3 0 0 1 3-3h10.5" /></>);
+const IconBrush = svg(<><path d="M14.5 4.5 19.5 9.5 10 19H5v-5z" /><path d="m12.5 6.5 5 5" /></>, 18);
 const IconSend = svg(<path d="M4 12 20 4l-5 16-3-7z" />);
 
 function Head({ title, sub }) {
+  const brand = useContext(Brand);
+  const fix = (t) => (t || "").replace("Colegio Demo", brand.name);
   return (
     <header className="head">
-      <img src={MARK} alt="" width="36" height="36" />
-      <div><div className="head-t">{title}</div><div className="head-s">{sub}</div></div>
+      <img src={brand.logo || MARK} alt="" width="36" height="36" className={brand.logo ? "logo" : ""} />
+      <div className="head-txt"><div className="head-t">{fix(title)}</div><div className="head-s">{fix(sub)}</div></div>
+      <span className="with">con miCole</span>
     </header>
   );
 }
@@ -203,6 +214,7 @@ function DirHome({ ctx }) {
   return (
     <>
       <Head title="Colegio Demo" sub="Dirección" />
+      <button type="button" className="custom" onClick={() => ctx.push({ name: "brand" })}><IconBrush /> Personalizar colegio</button>
       <h1>Circulares</h1>
       <ul className="cards">
         {ctx.state.circulares.map((c) => {
@@ -1018,6 +1030,73 @@ function TareaNueva({ ctx }) {
       {traerOn && <label className="field"><span>Qué hay que traer</span><input value={traer} onChange={(e) => setTraer(e.target.value)} placeholder="Por ejemplo: una hoja de árbol" maxLength={60} /></label>}
       <p className="hint">Lo que hay que traer aparece arriba en la vista de las familias, para que no dependa de la agenda en el morral.</p>
       <div className="dock"><button type="submit" className="btn" disabled={!ok}>Publicar para 24 familias</button></div>
+    </form>
+  );
+}
+
+/* ---------- school branding (Dirección) ---------- */
+function shrinkLogo(file) {
+  return new Promise((ok, no) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, 192 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      ok(c.toDataURL("image/png"));
+    };
+    img.onerror = no; img.src = url;
+  });
+}
+
+function BrandEdit({ ctx }) {
+  const cur = ctx.state.brand;
+  const [name, setName] = useState(cur.name);
+  const [color, setColor] = useState(cur.color || "#E59A2F");
+  const [logo, setLogo] = useState(cur.logo);
+  const bt = brandTokens(color);
+  const save = (e) => {
+    e.preventDefault();
+    ctx.setBrand({ name: name.trim() || "Colegio Demo", color, logo });
+    ctx.back(); ctx.say("Listo: así se ve miCole para su colegio");
+  };
+  const restore = () => { setName("Colegio Demo"); setColor("#E59A2F"); setLogo(""); };
+  return (
+    <form onSubmit={save} className="compose" style={{ "--acc": bt.acc, "--acc-ink": bt.ink, "--acc-text": bt.text }}>
+      <Back onClick={ctx.back}>Cancelar</Back>
+      <h1>Personalizar colegio</h1>
+      <p className="hint">El nombre, el logo y el color del colegio aparecen en todas las pantallas, para docentes y familias.</p>
+      <label className="field"><span>Nombre del colegio</span><input value={name} onChange={(e) => setName(e.target.value)} maxLength={60} placeholder="Por ejemplo: U.E. Colegio Los Samanes" /></label>
+      <fieldset><legend>Logo</legend>
+        <div className="logorow">
+          <span className="logoprev">{logo ? <img src={logo} alt="Logo del colegio" /> : <img src={MARK} alt="" />}</span>
+          <label className="photo small">
+            <input type="file" accept="image/*" onChange={async (e) => { const f = e.target.files[0]; e.target.value = ""; if (f) { try { setLogo(await shrinkLogo(f)); } catch (x) { ctx.say("No se pudo leer esa imagen"); } } }} />
+            <IconCam /> {logo ? "Cambiar logo" : "Subir logo"}
+          </label>
+          {logo && <button type="button" className="link" onClick={() => setLogo("")}>Quitar</button>}
+        </div>
+      </fieldset>
+      <fieldset><legend>Color del colegio</legend>
+        <div className="swatches">
+          {BRAND_COLORS.map((c) => (
+            <button key={c.hex} type="button" className={"sw" + (color.toLowerCase() === c.hex.toLowerCase() ? " on" : "")} style={{ background: c.hex }} aria-label={c.name} aria-pressed={color.toLowerCase() === c.hex.toLowerCase()} onClick={() => setColor(c.hex)} />
+          ))}
+          <label className="sw custom-c" aria-label="Otro color"><input type="color" value={color} onChange={(e) => setColor(e.target.value)} />+</label>
+        </div>
+        {bt.light && <p className="hint">Es un color claro: lo usamos en botones y franjas, y una versión más oscura para los textos, para que se lea bien.</p>}
+      </fieldset>
+      <div className="preview" style={{ "--acc": bt.acc, "--acc-ink": bt.ink, "--acc-text": bt.text }} aria-label="Vista previa">
+        <div className="head">
+          {logo ? <img src={logo} alt="" width="36" height="36" className="logo" /> : <img src={MARK} alt="" width="36" height="36" />}
+          <div className="head-txt"><div className="head-t">{name || "Colegio Demo"}</div><div className="head-s">4to grado A</div></div>
+          <span className="with">con miCole</span>
+        </div>
+        <div className="card new"><span className="meta"><span className="tag">Nueva</span>Dirección · ahora</span><span className="card-t">Reunión de representantes</span><div className="bar"><span style={{ width: "70%" }} /></div></div>
+        <span className="btn as">Confirmar lectura</span>
+      </div>
+      <button type="button" className="link" onClick={restore}>Volver a Colegio Demo</button>
+      <p className="hint">Solo se guarda en este teléfono. "Reiniciar" lo borra, para que el logo de un colegio no aparezca en la demo del siguiente.</p>
+      <div className="dock"><button type="submit" className="btn">Guardar</button></div>
     </form>
   );
 }

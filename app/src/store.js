@@ -5,7 +5,7 @@ import { seed, deliverAt } from "./data.js";
 const KEY = "micole-demo-v1";
 
 function load() {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 5) return s; } catch (e) {}
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.v === 6) return s; } catch (e) {}
   return seed();
 }
 function save(s) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {} }
@@ -68,8 +68,9 @@ export function useDemo() {
   const postTarea = useCallback((t) => setState((s) => ({ ...s, tareas: [{ id: "t" + Date.now().toString(36), ...t, audience: "4A", publishedAt: demoNow(s.clock), speed: 1, reads: {}, done: false }, ...s.tareas] })), []);
   const seeTarea = useCallback((id, rep) => setState((s) => ({ ...s, tareas: s.tareas.map((t) => (t.id === id && !t.reads[rep] ? { ...t, reads: { ...t.reads, [rep]: demoNow(s.clock) } } : t)) })), []);
   const toggleDone = useCallback((id) => setState((s) => ({ ...s, tareas: s.tareas.map((t) => (t.id === id ? { ...t, done: !t.done } : t)) })), []);
+  const setBrand = useCallback((brand) => setState((s) => ({ ...s, brand: { ...s.brand, ...brand } })), []);
   const reset = useCallback(() => setState(seed()), []);
-  return { state, postTarea, seeTarea, toggleDone, postMomento, toggleLike, publish, confirmRead, send, markSeen, setClose, setClock, sendAviso, seeAviso, setEstado, attach, saveAsistencia, reset };
+  return { state, setBrand, postTarea, seeTarea, toggleDone, postMomento, toggleLike, publish, confirmRead, send, markSeen, setClose, setClock, sendAviso, seeAviso, setEstado, attach, saveAsistencia, reset };
 }
 
 /* A demo clock that ticks while a screen needs live numbers. */

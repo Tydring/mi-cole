@@ -65,7 +65,8 @@ export function seed() {
     return { id, title, body, audience, publishedAt, speed: 90, reads: { [DEMO_REP]: publishedAt + 2.6 * H } };
   };
   return {
-    v: 5,
+    v: 6,
+    brand: { name: "Colegio Demo", color: "", logo: "" },
     tareas: seedTareas(),
     momentos: seedMomentos(),
     close: DEFAULT_CLOSE,
@@ -249,4 +250,22 @@ export function seedTareas() {
     t("t2", "Matemáticas", "Ejercicios de fracciones", "Página 42, ejercicios 1 al 6. Pueden usar la regla de fracciones que hicimos en clase.", "", schoolDayFrom(now, isSchoolDayKey(today) ? 2 : 1), y, 13, 5, false),
     t("t3", "Lengua", "Leer el capítulo 3", "Y escribir en el cuaderno una oración sobre el personaje que más les gustó.", "", dayKey(y.getTime()), y2, 12, 40, true),
   ];
+}
+
+/* ---------- school branding: the school's name, logo and color, with readable contrast ---------- */
+export const BRAND_COLORS = [
+  { name: "Mango (miCole)", hex: "#E59A2F" }, { name: "Azul marino", hex: "#1F3A7A" }, { name: "Rojo", hex: "#B22234" },
+  { name: "Verde", hex: "#1E7B4F" }, { name: "Vinotinto", hex: "#7B1E3A" }, { name: "Celeste", hex: "#6EC1E4" }, { name: "Amarillo", hex: "#F2C230" },
+];
+function rgb(hex) { const h = hex.replace("#", ""); const n = parseInt(h.length === 3 ? h.split("").map((c) => c + c).join("") : h, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function lum(hex) { return rgb(hex).map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }).reduce((a, v, i) => a + v * [0.2126, 0.7152, 0.0722][i], 0); }
+export function contrast(a, b) { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+function darken(hex, k) { return "#" + rgb(hex).map((v) => Math.round(v * (1 - k)).toString(16).padStart(2, "0")).join(""); }
+/* accent: fills (buttons, bars); ink: text on the accent; text: the accent as text on the paper background (>= 4.5:1) */
+export function brandTokens(color) {
+  const acc = /^#[0-9a-f]{6}$/i.test(color || "") ? color : "#E59A2F";
+  const ink = contrast(acc, "#17363A") >= contrast(acc, "#FFFFFF") ? "#17363A" : "#FFFFFF";
+  let text = acc, k = 0;
+  while (contrast(text, "#F5EFE3") < 4.5 && k < 0.9) { k += 0.05; text = darken(acc, k); }
+  return { acc, ink, text, light: text !== acc };
 }
