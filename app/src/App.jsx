@@ -1093,6 +1093,7 @@ function BrandEdit({ ctx }) {
         </div>
         <div className="card new"><span className="meta"><span className="tag">Nueva</span>Dirección · ahora</span><span className="card-t">Reunión de representantes</span><div className="bar"><span style={{ width: "70%" }} /></div></div>
         <span className="btn as">Confirmar lectura</span>
+        <p className="hint" style={{ margin: 0 }}>Vista previa</p>
       </div>
       <button type="button" className="link" onClick={restore}>Volver a Colegio Demo</button>
       <p className="hint">Solo se guarda en este teléfono. "Reiniciar" lo borra, para que el logo de un colegio no aparezca en la demo del siguiente.</p>
