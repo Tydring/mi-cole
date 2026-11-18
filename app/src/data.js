@@ -269,3 +269,6 @@ export function brandTokens(color) {
   while (contrast(text, "#F5EFE3") < 4.5 && k < 0.9) { k += 0.05; text = darken(acc, k); }
   return { acc, ink, text, light: text !== acc };
 }
+
+const MESES_L = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+export function fechaLarga(ts) { const d = new Date(ts); return `${d.getDate()} de ${MESES_L[d.getMonth()]} de ${d.getFullYear()}`; }

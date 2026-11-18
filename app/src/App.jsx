@@ -3,7 +3,7 @@ import { useDemo, useNow, demoNow } from "./store.js";
 import {
   SECCIONES, TOTAL, DEMO_REP, DEMO_CHILD, EJEMPLO, DOCENTE, CLOSE_OPTIONS,
   repsFor, repById, readAt, readStats, cuando, hora, horaMin, audienceLabel, seccionById, isOpen, deliverAt, cuandoLlega,
-  BRAND_COLORS, brandTokens, MATERIAS, ILUS, SIN_PERMISO, TIPOS, MOTIVOS, ESTADOS, dayKey, keyToTs, schoolDayFrom, isSchoolDayKey, dayLabel,
+  fechaLarga, BRAND_COLORS, brandTokens, MATERIAS, ILUS, SIN_PERMISO, TIPOS, MOTIVOS, ESTADOS, dayKey, keyToTs, schoolDayFrom, isSchoolDayKey, dayLabel,
 } from "./data.js";
 
 const ROLES = [
@@ -206,6 +206,22 @@ function Chev() {
 function Bar({ read, total }) {
   return <div className="bar" aria-hidden="true"><span style={{ width: `${total ? (read / total) * 100 : 0}%` }} /></div>;
 }
+/* a circular reads like the school's own letter: letterhead, date, title, body, signature */
+function Letter({ c }) {
+  const brand = useContext(Brand);
+  return (
+    <article className="letter">
+      <header className="lh">
+        <img src={brand.logo || MARK} alt="" width="40" height="40" />
+        <div><b>{brand.name}</b><span>Dirección · {audienceLabel(c.audience)}</span></div>
+      </header>
+      <p className="ldate">Caracas, {fechaLarga(c.publishedAt)}</p>
+      <h1 className="ltitle">{c.title}</h1>
+      <div className="lbody"><Paras text={c.body} /></div>
+      <p className="lsign">La Dirección</p>
+    </article>
+  );
+}
 function Paras({ text }) { return text.split(/\n+/).map((p, i) => <p key={i}>{p}</p>); }
 
 /* ---------- Dirección: circulares ---------- */
@@ -295,9 +311,8 @@ function DirCircular({ ctx, id }) {
   return (
     <>
       <Back onClick={ctx.back}>Circulares</Back>
-      <p className="meta">{audienceLabel(c.audience)} · {cuando(c.publishedAt, now)}</p>
-      <h1>{c.title}</h1>
-      <div className="body"><Paras text={c.body} /></div>
+      <p className="meta">Para {c.audience === "all" ? "todo el colegio" : audienceLabel(c.audience)} · publicada {cuando(c.publishedAt, now)}</p>
+      <Letter c={c} />
       <section className="stat" aria-live="polite">
         <div className="big"><b>{st.read}</b> de {st.total}</div>
         <div>representantes la leyeron</div>
@@ -515,9 +530,8 @@ function RepCircular({ ctx, id }) {
   return (
     <>
       <Back onClick={ctx.back}>Circulares</Back>
-      <p className="meta">Dirección · {audienceLabel(c.audience)} · {cuando(c.publishedAt, now)}</p>
-      <h1>{c.title}</h1>
-      <div className="body"><Paras text={c.body} /></div>
+      <p className="meta">Recibida {cuando(c.publishedAt, now)}</p>
+      <Letter c={c} />
       <div className="dock">
         {t ? <p className="done">✓ Usted confirmó que la leyó · {cuando(t, now)}</p>
            : <button type="button" className="btn" onClick={() => { ctx.confirmRead(c.id, DEMO_REP); ctx.say("Lectura confirmada. La dirección ya lo ve."); }}>Confirmar lectura</button>}

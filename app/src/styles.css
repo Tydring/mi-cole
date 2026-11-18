@@ -277,3 +277,66 @@ ul{list-style:none;margin:0;padding:0}
 .preview .card{border-radius:10px}
 .preview .head{margin:0}
 .btn.as{display:grid;place-items:center}
+
+/* ================= visual pass: the school's stationery =================
+   Page titles set the place; small uppercase captions label groups; lists are ruled rows like a register;
+   a circular is a letter; boxes only where something is a separate object (a letter, a photo, a form). */
+h1{font-size:28px;line-height:1.08;margin:6px 0 18px}
+h2{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--tiza);margin:30px 0 4px;gap:6px}
+.n{background:none;color:var(--tiza);padding:0;font-size:12px;font-variant-numeric:tabular-nums}
+.n::before{content:"· "}
+.meta{font-size:13px}
+.lead{font-size:18px}
+
+/* ruled lists */
+.cards{gap:0;border-top:1px solid var(--linea)}
+.cards>li>.card,.cards>li.tarea{border:0;border-bottom:1px solid var(--linea);border-radius:0;background:none;box-shadow:none;padding:16px 2px}
+.cards>li>.card:active{background:var(--papel-2)}
+.card.new .card-t{color:var(--pizarra)}
+.card-t{font-size:19px}
+.snip{font-size:15px}
+.threads{gap:0;border-top:1px solid var(--linea)}
+.threads button{border:0;border-bottom:1px solid var(--linea);border-radius:0;background:none;padding:14px 2px}
+.threads button.unread{border-color:var(--linea)}
+.threads button.unread .th-n::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--acc);margin-left:8px;vertical-align:middle}
+.secs{gap:0;border-top:1px solid var(--linea)}
+.secs button{border:0;border-bottom:1px solid var(--linea);border-radius:0;background:none;padding:12px 2px}
+.people li.hl{border-radius:0}
+
+/* numbers that matter, set large, no box */
+.stat{background:none;border:0;border-top:1px solid var(--linea);border-radius:0;padding:16px 2px 4px}
+.stat .big b{font-size:48px}
+.today{background:none;border:0;border-top:1px solid var(--linea);border-bottom:1px solid var(--linea);border-radius:0;padding:14px 2px}
+
+/* the letter */
+.letter{background:#fff;border:1px solid var(--linea);border-top:6px solid var(--acc);border-radius:4px;padding:16px 18px 18px;margin:8px 0 18px;box-shadow:0 2px 0 rgba(23,54,58,.04)}
+.lh{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--linea)}
+.lh img{width:40px;height:40px;object-fit:contain;flex:none}
+.lh div{display:grid;min-width:0}
+.lh b{font-size:15px;line-height:1.2}
+.lh span{font-size:12px;color:var(--tiza)}
+.ldate{text-align:right;font-size:13px;color:var(--tiza);margin:12px 0 10px}
+.ltitle{font-size:22px;margin:0 0 10px}
+.lbody p{margin:0 0 .8em;line-height:1.55}
+.lsign{margin:18px 0 0;font-weight:700}
+.lsign::before{content:"";display:block;width:120px;border-top:1px solid var(--tiza);margin-bottom:6px}
+
+/* momentos: the photo carries it, not the box */
+.feed{gap:0;border-top:1px solid var(--linea)}
+.mom{background:none;border:0;border-bottom:1px solid var(--linea);border-radius:0;padding:16px 2px 18px}
+.pics{border-radius:6px}
+.seg2{background:none;border:0;border-bottom:1px solid var(--linea);border-radius:0;padding:0;grid-template-columns:auto auto;justify-content:start;gap:22px}
+.seg2 button{border-radius:0;padding:0;min-height:44px;color:var(--tiza)}
+.seg2 button.on{background:none;color:var(--pizarra);box-shadow:inset 0 -3px 0 var(--acc)}
+
+/* tab bar: one quiet marker for where you are */
+.tabbar{background:var(--papel)}
+.tabbar button.on::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 2px 2px;background:var(--acc)}
+.tabbar button.on svg{color:var(--pizarra)}
+
+/* forms and asides: quieter */
+.setting{background:none;border:0;border-top:1px solid var(--linea);border-radius:0;padding:14px 2px 4px}
+.avisobox{border-radius:6px}
+.facts{background:none;border:0;border-top:1px solid var(--linea);border-bottom:1px solid var(--linea);border-radius:0;padding:12px 2px}
+.custom{border:0;background:none;padding:0;text-decoration:underline;text-decoration-color:var(--acc);text-decoration-thickness:2px;text-underline-offset:4px;min-height:44px;margin:-6px 0 4px}
+.roll li{padding:10px 0}
